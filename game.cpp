@@ -5,6 +5,7 @@
 
 #include "game.h"
 #include "globals.h"
+#include <collision.h>
 #include <entities/player.h>
 #include <cmath>
 #include <cstdio>
@@ -38,12 +39,6 @@ void CGame::RenderSectors()
         if(!m_pSectors[i].m_Active)
             continue;
 
-        Color colorwall;
-        colorwall.a = 255;
-        colorwall.r = 255;
-        colorwall.g = 0;
-        colorwall.b = 0;
-
         // walls
         for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
@@ -53,8 +48,21 @@ void CGame::RenderSectors()
             Verts[2] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
             Verts[3] = {m_pSectors[i].m_pVertices[vertid].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[vertid].y};
 
+            float vertdist = PointDistance(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)]);
+            float huv = vertdist/32; // horizontal uv
+
+            float ceildist = (m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor);
+            float vuv = ceildist/32; // vertical uv
+
+            float dist = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, m_pSectors[i].m_pVertices[vertid]);
+            float distalt = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)]);
+
+            dist = dist > distalt ? distalt : dist;
+
+            dist = 1 - dist/100.f;
+
             rlSetTexture(m_Textures[m_pSectors[i].m_pTexturesIDs[vertid]].id);
-            rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+            rlColor4ub(WHITE.r * dist, WHITE.g * dist, WHITE.b * dist, WHITE.a);
 
             if(m_pSectors[i].m_pNeighbors[vertid])
             {
@@ -71,14 +79,14 @@ void CGame::RenderSectors()
                 {
                     float ceiluv = (((m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor) - (pNeigh->m_Ceiling - m_pSectors[i].m_Floor)) / (m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor));
 
-                    rlTexCoord2f(1.f, 0.f);
+                    rlTexCoord2f(huv, 0.f);
                     rlVertex3f(Verts[1].x, Verts[1].y, Verts[1].z);
                     rlTexCoord2f(0.f, 0.f);
                     rlVertex3f(Verts[0].x, Verts[0].y, Verts[0].z);
-                    rlTexCoord2f(1.f, ceiluv);
+                    rlTexCoord2f(huv, ceiluv);
                     rlVertex3f(VertsNeigh[1].x, VertsNeigh[1].y, VertsNeigh[1].z);
 
-                    rlTexCoord2f(1.f, ceiluv);
+                    rlTexCoord2f(huv, ceiluv);
                     rlVertex3f(VertsNeigh[1].x, VertsNeigh[1].y, VertsNeigh[1].z);
                     rlTexCoord2f(0.f, 0.f);
                     rlVertex3f(Verts[0].x, Verts[0].y, Verts[0].z);
@@ -92,16 +100,16 @@ void CGame::RenderSectors()
                 {
                     float flooruv = (((m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor) - (pNeigh->m_Floor - m_pSectors[i].m_Floor)) / (m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor));
 
-                    rlTexCoord2f(1.f, flooruv);
+                    rlTexCoord2f(huv, flooruv);
                     rlVertex3f(VertsNeigh[2].x, VertsNeigh[2].y, VertsNeigh[2].z);
                     rlTexCoord2f(0.f, flooruv);
                     rlVertex3f(VertsNeigh[3].x, VertsNeigh[3].y, VertsNeigh[3].z);
                     rlTexCoord2f(0.f, 1.f);
                     rlVertex3f(Verts[3].x, Verts[3].y, Verts[3].z);
 
-                    rlTexCoord2f(1.f, 1.f);
+                    rlTexCoord2f(huv, 1.f);
                     rlVertex3f(Verts[2].x, Verts[2].y, Verts[2].z);
-                    rlTexCoord2f(1.f, flooruv);
+                    rlTexCoord2f(huv, flooruv);
                     rlVertex3f(VertsNeigh[2].x, VertsNeigh[2].y, VertsNeigh[2].z);
                     rlTexCoord2f(0.f, 1.f);
                     rlVertex3f(Verts[3].x, Verts[3].y, Verts[3].z);
@@ -111,18 +119,18 @@ void CGame::RenderSectors()
             }
 
             //entire wall
-            rlTexCoord2f(1.f, 0.f);
+            rlTexCoord2f(huv, 0.f);
             rlVertex3f(Verts[1].x, Verts[1].y, Verts[1].z);
             rlTexCoord2f(0.f, 0.f);
             rlVertex3f(Verts[0].x, Verts[0].y, Verts[0].z);
-            rlTexCoord2f(1.f, 1.f);
+            rlTexCoord2f(huv, vuv);
             rlVertex3f(Verts[2].x, Verts[2].y, Verts[2].z);
 
-            rlTexCoord2f(1.f, 1.f);
+            rlTexCoord2f(huv, vuv);
             rlVertex3f(Verts[2].x, Verts[2].y, Verts[2].z);
             rlTexCoord2f(0.f, 0.f);
             rlVertex3f(Verts[0].x, Verts[0].y, Verts[0].z);
-            rlTexCoord2f(0.f, 1.f);
+            rlTexCoord2f(0.f, vuv);
             rlVertex3f(Verts[3].x, Verts[3].y, Verts[3].z);
 
 
@@ -190,10 +198,9 @@ void CGame::RenderSectors()
 
 bool CGame::InitTextures()
 {
-    Image temp = LoadImage("data/images/floor_dirt_bw.png");
-    m_Textures[0] = LoadTextureFromImage(temp);
-    UnloadImage(temp);
-    //m_pTextures[1] = LoadTexture("data/images/floor_robot_dark.png");
+    m_Textures[0] = LoadTexture("data/images/floor_dirt_bw.png");
+    m_Textures[1] = LoadTexture("data/images/floor_robot_dark.png");
+    m_Textures[2] = LoadTexture("data/images/wall_dirt_bw.png");
 
     return true;
 }
