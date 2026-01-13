@@ -71,9 +71,9 @@ void CPlayer::Update()
 
     Vector3 CameraOffset;
 
-    CameraOffset.x = -cosf(m_Angle) * 8;
+    CameraOffset.x = -cosf(m_Angle) * 16;
     CameraOffset.y = 1.f;
-    CameraOffset.z = -sinf(m_Angle) * 8;
+    CameraOffset.z = -sinf(m_Angle) * 16;
 
     //Camera collision
     DoMovement(m_Pos, CameraOffset, 0.2f);

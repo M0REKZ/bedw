@@ -46,8 +46,6 @@ void CGame::RenderSectors()
 
         // walls
 
-        float secdist = 9999999.f;
-
         for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
             Vector3 Verts[4];
@@ -62,15 +60,8 @@ void CGame::RenderSectors()
             float ceildist = (m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor);
             float vuv = ceildist/32; // vertical uv
 
-            float dist = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, ClosestPointOnLine(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}));
-
-            if(dist < secdist)
-                secdist = dist;
-
-            dist = 1 - dist/100.f;
-
             rlSetTexture(m_Textures[m_pSectors[i].m_pTexturesIDs[vertid]].id);
-            rlColor4ub(WHITE.r * dist, WHITE.g * dist, WHITE.b * dist, WHITE.a);
+            rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
 
             if(m_pSectors[i].m_pNeighbors[vertid])
             {
@@ -150,10 +141,8 @@ void CGame::RenderSectors()
         BeginMode3D(g_Globals.m_RaylibCamera);
         rlBegin(RL_TRIANGLES);
 
-        secdist = 1 - secdist/100.f;
-
         rlSetTexture(m_Textures[m_pSectors[i].m_CeilingTextureID].id);
-        rlColor4ub(WHITE.r * secdist, WHITE.g * secdist, WHITE.b * secdist, WHITE.a);
+        rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
 
         for(int vertid = 1; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
@@ -194,7 +183,7 @@ void CGame::RenderSectors2D(CSector *pSelectedSector)
         {
             if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC && &m_pSectors[m_EditorNeighSec] == &m_pSectors[i])
                 DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,255,0,255});
-            else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && vertid == m_EditorSelectedVert && (pSelectedSector == &m_pSectors[i] || &m_pSectors[m_EditorNeighSec] == &m_pSectors[i]))
+            else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && vertid == m_EditorSelectedVert && (m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT ? pSelectedSector == &m_pSectors[i] : (m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT ? &m_pSectors[m_EditorNeighSec] == &m_pSectors[i] : false)))
                 DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,255,0,255});
             else if(m_pSectors[i].m_pNeighbors[vertid])
             {
@@ -247,7 +236,7 @@ void CGame::RenderEditorInfo()
     }
     else
     {
-        snprintf(tempchar, sizeof(tempchar), "Current Sector: %llu\n", sectorid);
+        snprintf(tempchar, sizeof(tempchar), "Current Sector: %llu\nCeiling: %f\nFloor: %f\n", sectorid, m_pCurrentSector->m_Ceiling, m_pCurrentSector->m_Floor);
     }
 
     DrawText(tempchar, 5 + g_Globals.m_RaylibCamera2D.target.x, 5 + g_Globals.m_RaylibCamera2D.target.y, 1, {255,255,255,255});
@@ -316,6 +305,16 @@ void CGame::UpdateEditorInput()
         {
             m_EditorState = EDITORSTATE_EDITING_SECTOR;
             m_EditorVertices.clear();
+        }
+
+        if(pInput->m_EditorFloorKey)
+        {
+            m_EditorState = EDITORSTATE_MOVING_FLOOR;
+        }
+
+        if(pInput->m_EditorCeilingKey)
+        {
+            m_EditorState = EDITORSTATE_MOVING_CEILING;
         }
 
         static bool waiting_for_saveload_release = false;
@@ -506,11 +505,17 @@ void CGame::UpdateEditorInput()
             {
                 waiting_for_key_release = true;
 
-                if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT || m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT)
                 {
                     m_EditorSelectedVert--;
                     if(m_EditorSelectedVert < 0)
                         m_EditorSelectedVert = m_pCurrentSector->m_NumVertices - 1;
+                }
+                else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                {
+                    m_EditorSelectedVert++;
+                    if(m_EditorSelectedVert < 0)
+                        m_EditorSelectedVert = m_pSectors[m_EditorNeighSec].m_NumVertices - 1;
                 }
                 else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC)
                 {
@@ -527,10 +532,16 @@ void CGame::UpdateEditorInput()
             {
                 waiting_for_key_release = true;
                 
-                if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT || m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT)
                 {
                     m_EditorSelectedVert++;
                     if(m_EditorSelectedVert >= m_pCurrentSector->m_NumVertices)
+                        m_EditorSelectedVert = 0;
+                }
+                else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                {
+                    m_EditorSelectedVert++;
+                    if(m_EditorSelectedVert >= m_pSectors[m_EditorNeighSec].m_NumVertices)
                         m_EditorSelectedVert = 0;
                 }
                 else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC)
@@ -569,6 +580,62 @@ void CGame::UpdateEditorInput()
                 }
             }
 
+        }
+        else
+        {
+            waiting_for_key_release = false;
+        }
+    }
+    else if(m_EditorState == EDITORSTATE_MOVING_CEILING)
+    {
+        static bool waiting_for_key_release = false;
+        if(pInput->m_ArrowUp)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_Ceiling++;
+            }
+        }
+        else if(pInput->m_ArrowDown)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_Ceiling--;
+            }
+        }
+        else if(pInput->m_Enter)
+        {
+            m_EditorState = EDITORSTATE_NONE;
+        }
+        else
+        {
+            waiting_for_key_release = false;
+        }
+    }
+    else if(m_EditorState == EDITORSTATE_MOVING_FLOOR)
+    {
+        static bool waiting_for_key_release = false;
+        if(pInput->m_ArrowUp)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_Floor++;
+            }
+        }
+        else if(pInput->m_ArrowDown)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_Floor--;
+            }
+        }
+        else if(pInput->m_Enter)
+        {
+            m_EditorState = EDITORSTATE_NONE;
         }
         else
         {
@@ -686,7 +753,7 @@ void CGame::Update()
 
     for(int i = 0; i < m_NumSectors; i++)
     {
-        m_pSectors->m_Active = false;
+        m_pSectors[i].m_Active = false;
     }
 
     ValidateActiveSectors(m_pCurrentSector);

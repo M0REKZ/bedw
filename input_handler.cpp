@@ -136,4 +136,40 @@ void CInputHandler::UpdateInput()
     {
         m_Inputs.m_EditorLoadLevelKey = false;
     }
+
+    if(IsKeyDown(KEY_UP))
+    {
+        m_Inputs.m_ArrowUp = true;
+    }
+    else
+    {
+        m_Inputs.m_ArrowUp = false;
+    }
+
+    if(IsKeyDown(KEY_DOWN))
+    {
+        m_Inputs.m_ArrowDown = true;
+    }
+    else
+    {
+        m_Inputs.m_ArrowDown = false;
+    }
+
+    if(IsKeyDown(KEY_C))
+    {
+        m_Inputs.m_EditorCeilingKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorCeilingKey = false;
+    }
+
+    if(IsKeyDown(KEY_F))
+    {
+        m_Inputs.m_EditorFloorKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorFloorKey = false;
+    }
 }

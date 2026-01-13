@@ -19,8 +19,12 @@ struct SInput
     bool m_BackSpace = false;
     bool m_ArrowLeft = false;
     bool m_ArrowRight = false;
+    bool m_ArrowUp = false;
+    bool m_ArrowDown = false;
     bool m_EditorNeighborKey = false;
     bool m_EditorEditSectorKey = false;
+    bool m_EditorCeilingKey = false;
+    bool m_EditorFloorKey = false;
     bool m_EditorSaveLevelKey = false;
     bool m_EditorLoadLevelKey = false;
 };

@@ -9,7 +9,7 @@ class CPlayer : public IEntity
 {
     public:
     float m_Angle = 0.f;
-    float m_Radius = 0.3f;
+    float m_Radius = 1.f;
 
     CPlayer(Vector3 Pos);
 
