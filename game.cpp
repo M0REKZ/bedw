@@ -45,6 +45,9 @@ void CGame::RenderSectors()
         rlBegin(RL_TRIANGLES);
 
         // walls
+
+        float secdist = 9999999.f;
+
         for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
             Vector3 Verts[4];
@@ -59,10 +62,10 @@ void CGame::RenderSectors()
             float ceildist = (m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor);
             float vuv = ceildist/32; // vertical uv
 
-            float dist = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, m_pSectors[i].m_pVertices[vertid]);
-            float distalt = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)]);
+            float dist = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, ClosestPointOnLine(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}));
 
-            dist = (dist + distalt)/2.f;
+            if(dist < secdist)
+                secdist = dist;
 
             dist = 1 - dist/100.f;
 
@@ -147,8 +150,10 @@ void CGame::RenderSectors()
         BeginMode3D(g_Globals.m_RaylibCamera);
         rlBegin(RL_TRIANGLES);
 
+        secdist = 1 - secdist/100.f;
+
         rlSetTexture(m_Textures[m_pSectors[i].m_CeilingTextureID].id);
-        rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+        rlColor4ub(WHITE.r * secdist, WHITE.g * secdist, WHITE.b * secdist, WHITE.a);
 
         for(int vertid = 1; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {

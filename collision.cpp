@@ -45,6 +45,14 @@ float GetClockwise(Vector2 *pVecArr, size_t vecnum)
     return res;
 }
 
+Vector2 ClosestPointOnLine(Vector2 Start, Vector2 End, Vector2 Point)
+{
+    Vector2 temp = {End.x - Start.x, End.y - Start.y};
+    float temp2 = temp.x * temp.x + temp.y * temp.y;
+    temp2 = (temp.y * (Point.y - Start.y) + temp.x * (Point.x - Start.x))/temp2;
+    return {Start.x + temp2 * temp.x, Start.y + temp2 * temp.y};
+}
+
 void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector)
 {
     CSector *pPrevSector = nullptr;
