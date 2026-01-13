@@ -106,6 +106,27 @@ bool CLevelHandler::ReadLevel(const char *filename)
                 {
                     sscanf(line.c_str(), "WALL_TEXTURE %u", &g_Game.GetSector(cursector)->m_pTexturesIDs[curvert]);
                 }
+                //only read if sector has 3 vertices
+                else if(g_Game.GetSector(cursector)->m_NumVertices == 3 && strstr(line.c_str(), "CEILSLOPEID"))
+                {
+                    sscanf(line.c_str(), "CEILSLOPEID %d", &g_Game.GetSector(cursector)->m_CeilingSlopeVert);
+                    g_Game.GetSector(cursector)->m_IsCeilingSlope = true;
+                }
+                else if(g_Game.GetSector(cursector)->m_NumVertices == 3 && strstr(line.c_str(), "FLOSLOPEID"))
+                {
+                    sscanf(line.c_str(), "FLOSLOPEID %d", &g_Game.GetSector(cursector)->m_FloorSlopeVert);
+                    g_Game.GetSector(cursector)->m_IsCeilingSlope = true;
+                }
+                else if(g_Game.GetSector(cursector)->m_NumVertices == 3 && strstr(line.c_str(), "CEILSLOPEALT"))
+                {
+                    sscanf(line.c_str(), "CEILSLOPEALT %f", &g_Game.GetSector(cursector)->m_CeilingSlopeAltitude);
+                    g_Game.GetSector(cursector)->m_IsCeilingSlope = true;
+                }
+                else if(g_Game.GetSector(cursector)->m_NumVertices == 3 && strstr(line.c_str(), "FLOSLOPEALT"))
+                {
+                    sscanf(line.c_str(), "FLOSLOPEALT %f", &g_Game.GetSector(cursector)->m_FloorSlopeAltitude);
+                    g_Game.GetSector(cursector)->m_IsCeilingSlope = true;
+                }
             }
         }
     }

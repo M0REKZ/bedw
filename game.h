@@ -21,6 +21,14 @@ class CSector
     unsigned int * m_pTexturesIDs = nullptr;
     int m_NumVertices = 0;
     bool m_Active = false; // for ValidateActiveSector()
+
+    //these should be only read if m_NumVertices == 3, for slopes
+    bool m_IsFloorSlope = false;
+    int m_FloorSlopeVert = 0;
+    float m_FloorSlopeAltitude = 0.f;
+    bool m_IsCeilingSlope = false;
+    int m_CeilingSlopeVert = 0;
+    float m_CeilingSlopeAltitude = 0.f;
 };
 
 class CGame
