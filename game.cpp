@@ -46,8 +46,8 @@ void CGame::RenderSectors()
 
         // walls
 
-        float WallCeilingSlope = m_pSectors[i].m_IsCeilingSlope ? m_pSectors[i].m_Ceiling + m_pSectors[i].m_CeilingSlopeAltitude : m_pSectors[i].m_Ceiling;
-        float WallFloorSlope = m_pSectors[i].m_IsFloorSlope ? m_pSectors[i].m_Floor + m_pSectors[i].m_FloorSlopeAltitude : m_pSectors[i].m_Floor;
+        float WallCeilingSlope = m_pSectors[i].m_IsCeilingSlope ? m_pSectors[i].m_CeilingSlopeAltitude : m_pSectors[i].m_Ceiling;
+        float WallFloorSlope = m_pSectors[i].m_IsFloorSlope ? m_pSectors[i].m_FloorSlopeAltitude : m_pSectors[i].m_Floor;
 
         for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
@@ -94,20 +94,18 @@ void CGame::RenderSectors()
                 //top
                 if(pNeigh->m_Ceiling < m_pSectors[i].m_Ceiling)
                 {
-                    float ceiluv = (((m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor) - (pNeigh->m_Ceiling - m_pSectors[i].m_Floor)) / (m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor));
-
                     rlTexCoord2f(huv, 0.f);
                     rlVertex3f(Verts[1].x, Verts[1].y, Verts[1].z);
                     rlTexCoord2f(0.f, 0.f);
                     rlVertex3f(Verts[0].x, Verts[0].y, Verts[0].z);
-                    rlTexCoord2f(huv, ceiluv);
+                    rlTexCoord2f(huv, vuv);
                     rlVertex3f(VertsNeigh[1].x, VertsNeigh[1].y, VertsNeigh[1].z);
 
-                    rlTexCoord2f(huv, ceiluv);
+                    rlTexCoord2f(huv, vuv);
                     rlVertex3f(VertsNeigh[1].x, VertsNeigh[1].y, VertsNeigh[1].z);
                     rlTexCoord2f(0.f, 0.f);
                     rlVertex3f(Verts[0].x, Verts[0].y, Verts[0].z);
-                    rlTexCoord2f(0.f, ceiluv);
+                    rlTexCoord2f(0.f, vuv);
                     rlVertex3f(VertsNeigh[0].x, VertsNeigh[0].y, VertsNeigh[0].z);
                 }
 
@@ -115,18 +113,16 @@ void CGame::RenderSectors()
 
                 if(pNeigh->m_Floor > m_pSectors[i].m_Floor)
                 {
-                    float flooruv = (((m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor) - (pNeigh->m_Floor - m_pSectors[i].m_Floor)) / (m_pSectors[i].m_Ceiling - m_pSectors[i].m_Floor));
-
-                    rlTexCoord2f(huv, flooruv);
+                    rlTexCoord2f(huv, vuv);
                     rlVertex3f(VertsNeigh[2].x, VertsNeigh[2].y, VertsNeigh[2].z);
-                    rlTexCoord2f(0.f, flooruv);
+                    rlTexCoord2f(0.f, vuv);
                     rlVertex3f(VertsNeigh[3].x, VertsNeigh[3].y, VertsNeigh[3].z);
                     rlTexCoord2f(0.f, 1.f);
                     rlVertex3f(Verts[3].x, Verts[3].y, Verts[3].z);
 
                     rlTexCoord2f(huv, 1.f);
                     rlVertex3f(Verts[2].x, Verts[2].y, Verts[2].z);
-                    rlTexCoord2f(huv, flooruv);
+                    rlTexCoord2f(huv, vuv);
                     rlVertex3f(VertsNeigh[2].x, VertsNeigh[2].y, VertsNeigh[2].z);
                     rlTexCoord2f(0.f, 1.f);
                     rlVertex3f(Verts[3].x, Verts[3].y, Verts[3].z);

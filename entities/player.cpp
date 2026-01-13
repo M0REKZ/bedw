@@ -72,11 +72,11 @@ void CPlayer::Update()
     Vector3 CameraOffset;
 
     CameraOffset.x = -cosf(m_Angle) * 16;
-    CameraOffset.y = 1.f;
+    CameraOffset.y = 2.f;
     CameraOffset.z = -sinf(m_Angle) * 16;
 
     //Camera collision
-    DoMovement(m_Pos, CameraOffset, 0.2f);
+    DoMovement(m_Pos, CameraOffset, 0.9f);
 
     g_Globals.m_Camera.m_Pos.x = m_Pos.x + CameraOffset.x;
     g_Globals.m_Camera.m_Pos.y = m_Pos.y + CameraOffset.y;

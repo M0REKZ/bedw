@@ -53,17 +53,74 @@ Vector2 ClosestPointOnLine(Vector2 Start, Vector2 End, Vector2 Point)
     return {Start.x + temp2 * temp.x, Start.y + temp2 * temp.y};
 }
 
+float GetSlopeAltitude(Vector2 Point1, Vector2 Point2, Vector2 HighestPoint, float HighestPointAltitude, Vector2 CheckingPoint)
+{
+    Vector2 MiddlePoint = {(Point1.x + Point2.x)/2, (Point1.y + Point2.y)/2};
+    float SlopeBase = PointDistance(MiddlePoint, HighestPoint);
+    float Multiplier = HighestPointAltitude/SlopeBase;
+    Vector2 ClosestPoint = ClosestPointOnLine(Point1, Point2, CheckingPoint);
+    return Multiplier * PointDistance(ClosestPoint, CheckingPoint);
+}
+
 void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector)
 {
     CSector *pPrevSector = nullptr;
     CSector *pNextSector = nullptr;
     CSector *pCurrentSector = ppInOutSector ? *ppInOutSector : g_Game.GetCurrentSector();
 
-    if((Pos.y - Radius) + InOutVel.y < pCurrentSector->m_Floor)
-        InOutVel.y = pCurrentSector->m_Floor - (Pos.y - Radius);
+    if(!pCurrentSector->m_IsFloorSlope)
+    {
+        if((Pos.y - Radius) + InOutVel.y < pCurrentSector->m_Floor)
+            InOutVel.y = pCurrentSector->m_Floor - (Pos.y - Radius);
+    }
+    else if(pCurrentSector->m_NumVertices == 3)
+    {
+        int ids[2] = {0,1};
+
+        if(pCurrentSector->m_FloorSlopeVert == 0)
+        {
+            ids[0] = 1;
+            ids[1] = 2;
+        }
+        else if(pCurrentSector->m_FloorSlopeVert == 1)
+        {
+            ids[0] = 2;
+            ids[1] = 0;
+        }
+
+        float altitude = GetSlopeAltitude(pCurrentSector->m_pVertices[ids[0]], pCurrentSector->m_pVertices[ids[1]],
+            pCurrentSector->m_pVertices[pCurrentSector->m_FloorSlopeVert], pCurrentSector->m_FloorSlopeAltitude - pCurrentSector->m_Floor, {Pos.x, Pos.z});
+        altitude += pCurrentSector->m_Floor;
+        if((Pos.y - Radius) + InOutVel.y < altitude)
+            InOutVel.y = altitude - (Pos.y - Radius);
+    }
     
-    if((Pos.y + Radius) + InOutVel.y > pCurrentSector->m_Ceiling)
-        InOutVel.y = pCurrentSector->m_Ceiling - (Pos.y + Radius);
+    if(!pCurrentSector->m_IsCeilingSlope)
+    {
+        if((Pos.y + Radius) + InOutVel.y > pCurrentSector->m_Ceiling)
+            InOutVel.y = pCurrentSector->m_Ceiling - (Pos.y + Radius);
+    }
+    else if(pCurrentSector->m_NumVertices == 3)
+    {
+        int ids[2] = {0,1};
+
+        if(pCurrentSector->m_CeilingSlopeVert == 0)
+        {
+            ids[0] = 1;
+            ids[1] = 2;
+        }
+        else if(pCurrentSector->m_CeilingSlopeVert == 1)
+        {
+            ids[0] = 2;
+            ids[1] = 0;
+        }
+
+        float altitude = GetSlopeAltitude(pCurrentSector->m_pVertices[ids[0]], pCurrentSector->m_pVertices[ids[1]],
+            pCurrentSector->m_pVertices[pCurrentSector->m_CeilingSlopeVert], pCurrentSector->m_CeilingSlopeAltitude - pCurrentSector->m_Ceiling, {Pos.x, Pos.z});
+        altitude += pCurrentSector->m_Ceiling;
+        if((Pos.y + Radius) + InOutVel.y > altitude)
+            InOutVel.y = altitude - (Pos.y + Radius);
+    }
 
     do
     {
