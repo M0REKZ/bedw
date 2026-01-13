@@ -2,7 +2,7 @@
 
 CFLAGS = `pkg-config --cflags raylib` -I ${CURDIR} -g
 LDFLAGS = `pkg-config --libs raylib`
-SRC = main.cpp input_handler.cpp game.cpp globals.cpp entities/player.cpp collision.cpp
+SRC = main.cpp input_handler.cpp game.cpp globals.cpp entities/player.cpp collision.cpp level_handler.cpp
 OBJ = $(SRC:%.cpp=%.o)
 DEP = $(SRC:%.cpp=%.d)
 
@@ -22,5 +22,7 @@ clean:
 	rm -f *.d
 	rm -f entities/*.o
 	rm -f entities/*.d
+	rm -f lib/*.o
+	rm -f lib/*.d
 
 

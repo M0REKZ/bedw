@@ -20,6 +20,7 @@ class CGlobals
     public:
     CCamera m_Camera;
     Camera3D m_RaylibCamera;
+    Camera2D m_RaylibCamera2D;
 
     int m_CurrentWindowWidth = GAME_WIDTH;
     int m_CurrentWindowHeight = GAME_HEIGHT;

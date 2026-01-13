@@ -9,6 +9,8 @@
 #include <entities/player.h>
 #include <cmath>
 #include <cstdio>
+#include <input_handler.h>
+#include <level_handler.h>
 
 CGame g_Game;
 
@@ -33,11 +35,14 @@ void CGame::RenderSectors()
 {
     for(int i = 0; i < m_NumSectors; i++)
     {
-        BeginMode3D(g_Globals.m_RaylibCamera);
-        rlBegin(RL_TRIANGLES);
 
         if(!m_pSectors[i].m_Active)
+        {
             continue;
+        }
+
+        BeginMode3D(g_Globals.m_RaylibCamera);
+        rlBegin(RL_TRIANGLES);
 
         // walls
         for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
@@ -57,7 +62,7 @@ void CGame::RenderSectors()
             float dist = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, m_pSectors[i].m_pVertices[vertid]);
             float distalt = PointDistance({g_Globals.m_Camera.m_Pos.x, g_Globals.m_Camera.m_Pos.z}, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)]);
 
-            dist = dist > distalt ? distalt : dist;
+            dist = (dist + distalt)/2.f;
 
             dist = 1 - dist/100.f;
 
@@ -170,37 +175,380 @@ void CGame::RenderSectors()
 
         rlEnd();
         EndMode3D();
+    }
+}
 
-        /*BeginMode3D(g_Globals.m_RaylibCamera);
+void CGame::RenderSectors2D(CSector *pSelectedSector)
+{
+    BeginMode2D(g_Globals.m_RaylibCamera2D);
 
-        for(int vertid = 1; vertid < m_pSectors[i].m_NumVertices; vertid++)
+    for(int i = 0; i < m_NumSectors; i++)
+    {
+        // walls
+        for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
-            Vector3 tri[3];
+            if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC && &m_pSectors[m_EditorNeighSec] == &m_pSectors[i])
+                DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,255,0,255});
+            else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && vertid == m_EditorSelectedVert && (pSelectedSector == &m_pSectors[i] || &m_pSectors[m_EditorNeighSec] == &m_pSectors[i]))
+                DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,255,0,255});
+            else if(m_pSectors[i].m_pNeighbors[vertid])
+            {
+                if(pSelectedSector == &m_pSectors[i])
+                    DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {0,255,255,255});
+                else
+                    DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {0,0,255,255});
+            }
+            else if(pSelectedSector == &m_pSectors[i])
+                DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {0,255,0,255});
+            else
+                DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,0,0,255});
+        }
+    }
 
-            tri[0] = {m_pSectors[i].m_pVertices[0].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[0].y};
-            tri[1] = {m_pSectors[i].m_pVertices[vertid].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[vertid].y};
-            tri[2] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
+    //editor drawing
+    if(m_EditorState == EDITORSTATE_CREATING_SECTOR || m_EditorState == EDITORSTATE_EDITING_SECTOR)
+    {
+        for(int vertid = 0; vertid < m_EditorVertices.size(); vertid++)
+        {
+            DrawLineV(m_EditorVertices[vertid], m_EditorVertices[(vertid + 1) % (m_EditorVertices.size())], {255,255,255,255});
+        }
+    }
 
-            DrawTriangle3D(tri[0], tri[1], tri[2], colorceil);
+    EndMode2D();
+}
 
-            tri[2] = {m_pSectors[i].m_pVertices[0].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[0].y};
-            tri[1] = {m_pSectors[i].m_pVertices[vertid].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[vertid].y};
-            tri[0] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
+void CGame::RenderEditorInfo()
+{
+    BeginMode2D(g_Globals.m_RaylibCamera2D);
+    unsigned long long sectorid = SectorPointerToID(m_pCurrentSector);
+    char tempchar[256] = {0};
 
-            DrawTriangle3D(tri[0], tri[1], tri[2], colorfloor);
+    if(m_EditorState == EDITORSTATE_CREATING_SECTOR)
+    {
+        strncpy(tempchar, "Creating Sector...", sizeof(tempchar));
+    }
+    else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR)
+    {
+        if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT)
+            snprintf(tempchar, sizeof(tempchar), "Adding Neighbor... \nWall: %d\n", m_EditorSelectedVert);
+        else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC)
+            snprintf(tempchar, sizeof(tempchar), "Adding Neighbor... \nSector: %d\n", m_EditorNeighSec);
+        else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+            snprintf(tempchar, sizeof(tempchar), "Adding Neighbor... \nOther Wall: %d\n", m_EditorSelectedVert);
+    }
+    else if(m_EditorState == EDITORSTATE_EDITING_SECTOR)
+    {
+        snprintf(tempchar, sizeof(tempchar), "Remaking Sector: %llu\n", sectorid);
+    }
+    else
+    {
+        snprintf(tempchar, sizeof(tempchar), "Current Sector: %llu\n", sectorid);
+    }
+
+    DrawText(tempchar, 5 + g_Globals.m_RaylibCamera2D.target.x, 5 + g_Globals.m_RaylibCamera2D.target.y, 1, {255,255,255,255});
+    EndMode2D();
+}
+
+void CGame::RenderGrid()
+{
+    //vertical lines
+    for(int x = ((int)g_Globals.m_RaylibCamera2D.target.x % 10); x < GAME_WIDTH; x+=10)
+    {
+        DrawLine(x,0,x,GAME_HEIGHT,{128,128,128,255});
+    }
+
+    for(int y = ((int)g_Globals.m_RaylibCamera2D.target.y % 10); y < GAME_WIDTH; y+=10)
+    {
+        DrawLine(0,y,GAME_WIDTH,y,{128,128,128,255});
+    }
+}
+
+void CGame::UpdateEditorCamera()
+{
+    const SInput * pInput = g_InputHandler.GetInputs();
+    if(pInput->m_Front)
+    {
+        g_Globals.m_RaylibCamera2D.target.y -=10;
+    }
+
+    if(pInput->m_Back)
+    {
+        g_Globals.m_RaylibCamera2D.target.y +=10;
+    }
+
+    if(pInput->m_Left)
+    {
+        g_Globals.m_RaylibCamera2D.target.x -=10;
+    }
+
+    if(pInput->m_Right)
+    {
+        g_Globals.m_RaylibCamera2D.target.x +=10;
+    }
+}
+
+void CGame::UpdateEditorInput()
+{
+    unsigned long long sectorid = SectorPointerToID(m_pCurrentSector);
+    const SInput *pInput = g_InputHandler.GetInputs();
+
+    if(m_EditorState == EDITORSTATE_NONE)
+    {
+        if(pInput->m_Jump)
+        {
+            m_EditorState = EDITORSTATE_CREATING_SECTOR;
+            m_EditorVertices.clear();
         }
 
-        EndMode3D();*/
-        
-        
+        if(pInput->m_EditorNeighborKey)
+        {
+            m_EditorState = EDITORSTATE_SETTING_NEIGHBOR;
+            m_EditorSettingNeighborState = EDITORSETTINGNEIGHBOR_FIRST_VERT;
+            m_EditorSelectedVert = 0;
+        }
+
+        if(pInput->m_EditorEditSectorKey)
+        {
+            m_EditorState = EDITORSTATE_EDITING_SECTOR;
+            m_EditorVertices.clear();
+        }
+
+        static bool waiting_for_saveload_release = false;
+        if(pInput->m_EditorSaveLevelKey)
+        {
+            if(!waiting_for_saveload_release)
+            {
+                g_LevelHandler.SaveLevel("TESTLEVEL.txt");
+            }
+        }
+        else if(pInput->m_EditorLoadLevelKey)
+        {
+            if(!waiting_for_saveload_release)
+            {
+                g_LevelHandler.ReadLevel("TESTLEVEL.txt");
+            }
+        }
+        else
+        {
+            waiting_for_saveload_release = false;
+        }
+
+        static bool waiting_for_arrow_release = false;
+        if(pInput->m_ArrowLeft)
+        {
+            if(!waiting_for_arrow_release && sectorid > 0)
+            {
+                waiting_for_arrow_release = true;
+
+                sectorid--;
+                m_pCurrentSector = &m_pSectors[sectorid];
+            }
+        }
+        else if(pInput->m_ArrowRight)
+        {
+            if(!waiting_for_arrow_release && sectorid < m_NumSectors - 1)
+            {
+                waiting_for_arrow_release = true;
+
+                sectorid++;
+                m_pCurrentSector = &m_pSectors[sectorid];
+            }
+        }
+        else
+        {
+            waiting_for_arrow_release = false;
+        }
+    }
+    else if(m_EditorState == EDITORSTATE_CREATING_SECTOR || m_EditorState == EDITORSTATE_EDITING_SECTOR)
+    {
+        static bool waiting_for_click_release = false;
+        if(pInput->m_MouseClick)
+        {
+            if(!waiting_for_click_release)
+            {
+                waiting_for_click_release = true;
+
+                int x = pInput->m_MousePos.x + g_Globals.m_RaylibCamera2D.target.x;
+                int y = pInput->m_MousePos.y + g_Globals.m_RaylibCamera2D.target.y;
+
+                int modx = x%10;
+                int mody = y%10;
+
+                if(modx < 5)
+                {
+                    x-=modx;
+                }
+                else
+                {
+                    x+=(10-modx);
+                }
+
+                if(mody < 5)
+                {
+                    y-=mody;
+                }
+                else
+                {
+                    y+=(10-mody);
+                }
+
+                m_EditorVertices.push_back({(float)x, (float)y});
+            }
+        }
+        else
+        {
+            waiting_for_click_release = false;
+        }
+
+        if(pInput->m_Enter)
+        {
+            if(m_EditorState == EDITORSTATE_CREATING_SECTOR)
+            {
+                //resize array for new sector
+                CSector * pTempSec = new CSector[m_NumSectors+1];
+                for(int i = 0; i < m_NumSectors; i++)
+                {
+                    pTempSec[i] = m_pSectors[i];
+                }
+                delete[] m_pSectors; //just delete the old array, but not the data
+                m_pSectors = pTempSec;
+
+                //add new sector
+                m_NumSectors++;
+                int newsecid = m_NumSectors - 1;
+
+                m_pSectors[newsecid].m_NumVertices = m_EditorVertices.size();
+                m_pSectors[newsecid].m_pVertices = new Vector2[m_pSectors[newsecid].m_NumVertices];
+                m_pSectors[newsecid].m_pNeighbors = new CSector*[m_pSectors[newsecid].m_NumVertices];
+                m_pSectors[newsecid].m_pTexturesIDs = new unsigned int[m_pSectors[newsecid].m_NumVertices];
+                for(int i = 0; i < m_pSectors[newsecid].m_NumVertices; i++)
+                {
+                    m_pSectors[newsecid].m_pVertices[i] = m_EditorVertices[i];
+                    m_pSectors[newsecid].m_pNeighbors[i] = nullptr;
+                    m_pSectors[newsecid].m_pTexturesIDs[i] = 0;
+                }
+
+                m_pSectors[newsecid].m_Floor = -10.f;
+                m_pSectors[newsecid].m_Ceiling = 50.f;
+
+                m_EditorVertices.clear();
+                m_EditorState = EDITORSTATE_NONE;
+
+                m_pCurrentSector = &m_pSectors[newsecid];
+            }
+            else if(m_EditorState == EDITORSTATE_EDITING_SECTOR)
+            {
+                //need to delete everything
+                delete[] m_pCurrentSector->m_pVertices;
+                delete[] m_pCurrentSector->m_pNeighbors;
+                delete[] m_pCurrentSector->m_pTexturesIDs;
+                m_pCurrentSector->m_NumVertices = m_EditorVertices.size();
+                m_pCurrentSector->m_pVertices = new Vector2[m_pCurrentSector->m_NumVertices];
+                m_pCurrentSector->m_pNeighbors = new CSector*[m_pCurrentSector->m_NumVertices];
+                m_pCurrentSector->m_pTexturesIDs = new unsigned int[m_pCurrentSector->m_NumVertices];
+                for(int i = 0; i < m_pCurrentSector->m_NumVertices; i++)
+                {
+                    m_pCurrentSector->m_pVertices[i] = m_EditorVertices[i];
+                    m_pCurrentSector->m_pNeighbors[i] = nullptr;
+                    m_pCurrentSector->m_pTexturesIDs[i] = 0;
+                }
+
+                m_EditorVertices.clear();
+                m_EditorState = EDITORSTATE_NONE;
+            }
+        }
+    }
+    else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR)
+    {
+        static bool waiting_for_key_release = false;
+        if(pInput->m_ArrowLeft)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+
+                if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT || m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                {
+                    m_EditorSelectedVert--;
+                    if(m_EditorSelectedVert < 0)
+                        m_EditorSelectedVert = m_pCurrentSector->m_NumVertices - 1;
+                }
+                else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC)
+                {
+                    if(m_EditorNeighSec > 0)
+                    {
+                        m_EditorNeighSec--;
+                    }
+                }
+            }
+        }
+        else if(pInput->m_ArrowRight)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                
+                if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT || m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                {
+                    m_EditorSelectedVert++;
+                    if(m_EditorSelectedVert >= m_pCurrentSector->m_NumVertices)
+                        m_EditorSelectedVert = 0;
+                }
+                else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC)
+                {
+                    if(m_EditorNeighSec < m_NumSectors - 1)
+                    {
+                        m_EditorNeighSec++;
+                    }
+                }
+
+            }
+        }
+        else if(pInput->m_Enter)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+
+                if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT)
+                {
+                    m_EditorFirstVert = m_EditorSelectedVert;
+                    m_EditorSelectedVert = 0;
+                    m_EditorSettingNeighborState = EDITORSETTINGNEIGHBOR_NEIGH_SEC;
+                }
+                else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC)
+                {
+                    m_EditorSettingNeighborState = EDITORSETTINGNEIGHBOR_SECOND_VERT;
+                }
+                else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                {
+                    m_EditorSettingNeighborState = EDITORSETTINGNEIGHBOR_FIRST_VERT;
+                    m_EditorState = EDITORSTATE_NONE;
+
+                    m_pCurrentSector->m_pNeighbors[m_EditorFirstVert] = &m_pSectors[m_EditorNeighSec];
+                    m_pSectors[m_EditorNeighSec].m_pNeighbors[m_EditorSelectedVert] = m_pCurrentSector;
+                }
+            }
+
+        }
+        else
+        {
+            waiting_for_key_release = false;
+        }
     }
 }
 
 bool CGame::InitTextures()
 {
-    m_Textures[0] = LoadTexture("data/images/floor_dirt_bw.png");
-    m_Textures[1] = LoadTexture("data/images/floor_robot_dark.png");
-    m_Textures[2] = LoadTexture("data/images/wall_dirt_bw.png");
+    char filename[256] = {0};
+    for(int i = 0; i < MAX_TEXTURES; i++)
+    {
+        snprintf(filename, sizeof(filename), "data/images/%d.png", i);
+        if(FileExists(filename))
+        {
+            m_Textures[i] = LoadTexture(filename);
+        }
+    }
 
     return true;
 }
@@ -273,7 +621,7 @@ bool CGame::Init()
 
     m_NumEntities = 1;
     m_pEntities = new IEntity*[m_NumEntities];
-    m_pEntities[0] = new CPlayer({0,0,0});
+    m_pEntities[0] = new CPlayer({0,1,0});
 
     m_pCurrentSector = &m_pSectors[0];
 
@@ -314,6 +662,14 @@ void CGame::Destroy()
 
 void CGame::Update()
 {
+
+    if(m_EditorMode)
+    {
+        UpdateEditorInput();
+        UpdateEditorCamera();
+        return;
+    }
+
     for(int i = 0; i < m_NumSectors; i++)
     {
         m_pSectors->m_Active = false;
@@ -335,6 +691,14 @@ void CGame::Update()
 
 void CGame::Render()
 {
+    if(m_EditorMode)
+    {
+        RenderGrid();
+        RenderSectors2D(m_pCurrentSector);
+        RenderEditorInfo();
+        return;
+    }
+
     RenderSectors();
 
     if(m_pEntities)
@@ -347,4 +711,10 @@ void CGame::Render()
             }
         }
     }
+}
+
+unsigned long long CGame::SectorPointerToID(CSector *pSector)
+{
+    //i dont know if this will work on all systems, may need to remake...
+    return ((unsigned long long)pSector - (unsigned long long)&m_pSectors[0]) / sizeof(CSector);
 }

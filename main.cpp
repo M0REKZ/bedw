@@ -6,8 +6,9 @@
 #include "input_handler.h"
 #include "game.h"
 #include "globals.h"
+#include <cstring>
 
-int main()
+int main(int argc, char** argv)
 {
     InitWindow(GAME_WIDTH, GAME_HEIGHT, "Brain Evil: Dark World");
     SetExitKey(KEY_NULL);
@@ -17,10 +18,27 @@ int main()
     if(!g_Game.Init())
         return -1;
 
+    if(argc > 1)
+    {
+        for(int i = 1; i < argc; i++)
+        {
+            if(strstr(argv[i],"editor"))
+            {
+                g_Game.m_EditorMode = true;
+            }
+        }
+    }
+
     bool exit = false;
     g_Globals.m_RaylibCamera.up = {0.f, 1.f, 0.f};
     g_Globals.m_RaylibCamera.fovy = 45.f;
     g_Globals.m_RaylibCamera.projection = CAMERA_PERSPECTIVE;
+
+    //screen drawing
+    g_Globals.m_RaylibCamera2D.offset = {0,0};
+    g_Globals.m_RaylibCamera2D.target = {0,0};
+    g_Globals.m_RaylibCamera2D.rotation = 0;
+    g_Globals.m_RaylibCamera2D.zoom = 1;
     while(!exit)
     {
         g_InputHandler.UpdateInput();

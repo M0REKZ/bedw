@@ -4,6 +4,9 @@
 #define GAME_H
 
 #include <entities/entity_base.h>
+#include <vector>
+
+#define MAX_TEXTURES 10
 
 class CSector
 {
@@ -29,14 +32,42 @@ class CGame
 
     CSector * m_pCurrentSector = nullptr;
 
-    Texture2D m_Textures[10];
+    Texture2D m_Textures[MAX_TEXTURES];
 
     void ValidateActiveSectors(CSector * pCurrentSector, int recursionamount = 15);
     void RenderSectors();
 
+    //editor
+    void RenderSectors2D(CSector * pSelectedSector);
+    void RenderEditorInfo();
+    void RenderGrid();
+    void UpdateEditorCamera();
+    void UpdateEditorInput();
+
     bool InitTextures();
 
     public:
+
+    //editor
+    bool m_EditorMode = false;
+    enum EEditorState
+    {
+        EDITORSTATE_NONE,
+        EDITORSTATE_CREATING_SECTOR,
+        EDITORSTATE_EDITING_SECTOR,
+        EDITORSTATE_SETTING_NEIGHBOR,
+    } m_EditorState = EDITORSTATE_NONE;
+    std::vector<Vector2> m_EditorVertices;
+    enum EEditorSettingNeighborState
+    {
+        EDITORSETTINGNEIGHBOR_FIRST_VERT,
+        EDITORSETTINGNEIGHBOR_NEIGH_SEC,
+        EDITORSETTINGNEIGHBOR_SECOND_VERT,
+    } m_EditorSettingNeighborState = EDITORSETTINGNEIGHBOR_FIRST_VERT;
+    int m_EditorSelectedVert = 0;
+    int m_EditorFirstVert = 0;
+    int m_EditorNeighSec = 0;
+
     bool Init();
     void Destroy();
     void Update();
@@ -46,6 +77,10 @@ class CGame
     CSector * GetCurrentSector() { return m_pCurrentSector; }
     void SetCurrentSector(CSector * pSec) { m_pCurrentSector = pSec; }
     int NumSectors() { return m_NumSectors; }
+
+    unsigned long long SectorPointerToID(CSector *pSector);
+
+    friend class CLevelHandler;
 };
 
 extern CGame g_Game;

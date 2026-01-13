@@ -54,11 +54,86 @@ void CInputHandler::UpdateInput()
 
     if(IsKeyDown(KEY_LEFT))
     {
+        m_Inputs.m_ArrowLeft = true;
         m_Inputs.m_Angle -= 0.1f;
+    }
+    else
+    {
+        m_Inputs.m_ArrowLeft = false;
     }
 
     if(IsKeyDown(KEY_RIGHT))
     {
+        m_Inputs.m_ArrowRight = true;
         m_Inputs.m_Angle += 0.1f;
+    }
+    else
+    {
+        m_Inputs.m_ArrowRight = false;
+    }
+
+    m_Inputs.m_MousePos = GetMousePosition();
+
+    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+    {
+        m_Inputs.m_MouseClick = true;
+    }
+    else
+    {
+        m_Inputs.m_MouseClick = false;
+    }
+
+    if(IsKeyDown(KEY_ENTER))
+    {
+        m_Inputs.m_Enter = true;
+    }
+    else
+    {
+        m_Inputs.m_Enter = false;
+    }
+
+    if(IsKeyDown(KEY_BACKSPACE))
+    {
+        m_Inputs.m_BackSpace = true;
+    }
+    else
+    {
+        m_Inputs.m_BackSpace = false;
+    }
+
+    if(IsKeyDown(KEY_N))
+    {
+        m_Inputs.m_EditorNeighborKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorNeighborKey = false;
+    }
+
+    if(IsKeyDown(KEY_E))
+    {
+        m_Inputs.m_EditorEditSectorKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorEditSectorKey = false;
+    }
+
+    if(IsKeyDown(KEY_K))
+    {
+        m_Inputs.m_EditorSaveLevelKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorSaveLevelKey = false;
+    }
+
+    if(IsKeyDown(KEY_L))
+    {
+        m_Inputs.m_EditorLoadLevelKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorLoadLevelKey = false;
     }
 }
