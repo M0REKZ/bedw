@@ -10,14 +10,6 @@
 
 int main(int argc, char** argv)
 {
-    InitWindow(GAME_WIDTH, GAME_HEIGHT, "Brain Evil: Dark World");
-    SetExitKey(KEY_NULL);
-
-    SetTargetFPS(60);
-
-    if(!g_Game.Init())
-        return -1;
-
     if(argc > 1)
     {
         for(int i = 1; i < argc; i++)
@@ -28,6 +20,14 @@ int main(int argc, char** argv)
             }
         }
     }
+
+    InitWindow(GAME_WIDTH, GAME_HEIGHT, "Brain Evil: Dark World");
+    SetExitKey(KEY_NULL);
+
+    SetTargetFPS(60);
+
+    if(!g_Game.Init())
+        return -1;
 
     bool exit = false;
     g_Globals.m_RaylibCamera.up = {0.f, 1.f, 0.f};

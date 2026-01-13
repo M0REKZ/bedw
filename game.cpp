@@ -428,6 +428,23 @@ void CGame::UpdateEditorInput()
                     m_pSectors[newsecid].m_pTexturesIDs[i] = 0;
                 }
 
+                //fix vertices in wrong order
+                if(GetClockwise(m_pSectors[newsecid].m_pVertices, m_pSectors[newsecid].m_NumVertices) > 0.f)
+                {
+                    int start = 0;
+                    int end = m_pSectors[newsecid].m_NumVertices - 1;
+
+                    while(start < end)
+                    {
+                        Vector2 temp = m_pSectors[newsecid].m_pVertices[start];
+                        m_pSectors[newsecid].m_pVertices[start] = m_pSectors[newsecid].m_pVertices[end];
+                        m_pSectors[newsecid].m_pVertices[end] = temp;
+
+                        start++;
+                        end--;
+                    }
+                }
+
                 m_pSectors[newsecid].m_Floor = -10.f;
                 m_pSectors[newsecid].m_Ceiling = 50.f;
 
@@ -451,6 +468,23 @@ void CGame::UpdateEditorInput()
                     m_pCurrentSector->m_pVertices[i] = m_EditorVertices[i];
                     m_pCurrentSector->m_pNeighbors[i] = nullptr;
                     m_pCurrentSector->m_pTexturesIDs[i] = 0;
+                }
+
+                //fix vertices in wrong order
+                if(GetClockwise(m_pCurrentSector->m_pVertices, m_pCurrentSector->m_NumVertices) > 0.f)
+                {
+                    int start = 0;
+                    int end = m_pCurrentSector->m_NumVertices - 1;
+
+                    while(start < end)
+                    {
+                        Vector2 temp = m_pCurrentSector->m_pVertices[start];
+                        m_pCurrentSector->m_pVertices[start] = m_pCurrentSector->m_pVertices[end];
+                        m_pCurrentSector->m_pVertices[end] = temp;
+
+                        start++;
+                        end--;
+                    }
                 }
 
                 m_EditorVertices.clear();
@@ -555,76 +589,51 @@ bool CGame::InitTextures()
 
 bool CGame::Init()
 {
-    m_NumSectors = 2;
-    m_pSectors = new CSector[m_NumSectors];
-
-    m_pSectors[0].m_NumVertices = 6;
-    m_pSectors[0].m_pVertices = new Vector2[m_pSectors[0].m_NumVertices];
-    m_pSectors[0].m_pNeighbors = new CSector*[m_pSectors[0].m_NumVertices];
-    m_pSectors[0].m_pTexturesIDs = new unsigned int[m_pSectors[0].m_NumVertices];
-    for(int i = 0; i < m_pSectors[0].m_NumVertices; i++)
+    if(!m_EditorMode)
     {
-        m_pSectors[0].m_pNeighbors[i] = nullptr;
-        m_pSectors[0].m_pTexturesIDs[i] = 0;
+        g_LevelHandler.ReadLevel("TESTLEVEL.txt");
     }
-
-    m_pSectors[0].m_pVertices[0].x = -20.f;
-    m_pSectors[0].m_pVertices[0].y = -10.f;
-
-    m_pSectors[0].m_pVertices[1].x = 15.f;
-    m_pSectors[0].m_pVertices[1].y = -12.f;
-
-    m_pSectors[0].m_pVertices[2].x = 15.f;
-    m_pSectors[0].m_pVertices[2].y = -10.f;
-    m_pSectors[0].m_pNeighbors[2] = &m_pSectors[1];
-
-    m_pSectors[0].m_pVertices[3].x = 15.f;
-    m_pSectors[0].m_pVertices[3].y = 10.f;
-
-    m_pSectors[0].m_pVertices[4].x = 15.f;
-    m_pSectors[0].m_pVertices[4].y = 12.f;
-
-    m_pSectors[0].m_pVertices[5].x = -20.f;
-    m_pSectors[0].m_pVertices[5].y = 10.f;
-
-    m_pSectors[0].m_Ceiling = 10.f;
-    m_pSectors[0].m_Floor = -10.f;
-
-    m_pSectors[1].m_NumVertices = 5;
-    m_pSectors[1].m_pVertices = new Vector2[m_pSectors[1].m_NumVertices];
-    m_pSectors[1].m_pNeighbors = new CSector*[m_pSectors[1].m_NumVertices];
-    m_pSectors[1].m_pTexturesIDs = new unsigned int[m_pSectors[1].m_NumVertices];
-    for(int i = 0; i < m_pSectors[1].m_NumVertices; i++)
+    else
     {
-        m_pSectors[1].m_pNeighbors[i] = nullptr;
-        m_pSectors[1].m_pTexturesIDs[i] = 0;
+        m_NumSectors = 1;
+        m_pSectors = new CSector[m_NumSectors];
+
+        m_pSectors[0].m_NumVertices = 6;
+        m_pSectors[0].m_pVertices = new Vector2[m_pSectors[0].m_NumVertices];
+        m_pSectors[0].m_pNeighbors = new CSector*[m_pSectors[0].m_NumVertices];
+        m_pSectors[0].m_pTexturesIDs = new unsigned int[m_pSectors[0].m_NumVertices];
+        for(int i = 0; i < m_pSectors[0].m_NumVertices; i++)
+        {
+            m_pSectors[0].m_pNeighbors[i] = nullptr;
+            m_pSectors[0].m_pTexturesIDs[i] = 0;
+        }
+
+        m_pSectors[0].m_pVertices[0].x = -20.f;
+        m_pSectors[0].m_pVertices[0].y = -10.f;
+
+        m_pSectors[0].m_pVertices[1].x = 15.f;
+        m_pSectors[0].m_pVertices[1].y = -12.f;
+
+        m_pSectors[0].m_pVertices[2].x = 15.f;
+        m_pSectors[0].m_pVertices[2].y = -10.f;
+
+        m_pSectors[0].m_pVertices[3].x = 15.f;
+        m_pSectors[0].m_pVertices[3].y = 10.f;
+
+        m_pSectors[0].m_pVertices[4].x = 15.f;
+        m_pSectors[0].m_pVertices[4].y = 12.f;
+
+        m_pSectors[0].m_pVertices[5].x = -20.f;
+        m_pSectors[0].m_pVertices[5].y = 10.f;
+
+        m_pSectors[0].m_Ceiling = 10.f;
+        m_pSectors[0].m_Floor = -10.f;
+
+        m_pCurrentSector = &m_pSectors[0];
     }
-
-    m_pSectors[1].m_pVertices[0].x = 15.f;
-    m_pSectors[1].m_pVertices[0].y = -10.f;
-
-    m_pSectors[1].m_pVertices[1].x = 35.f;
-    m_pSectors[1].m_pVertices[1].y = -10.f;
-
-    m_pSectors[1].m_pVertices[2].x = 40.f;
-    m_pSectors[1].m_pVertices[2].y = 0.f;
-
-    m_pSectors[1].m_pVertices[3].x = 35.f;
-    m_pSectors[1].m_pVertices[3].y = 10.f;
-
-    m_pSectors[1].m_pVertices[4].x = 15.f;
-    m_pSectors[1].m_pVertices[4].y = 10.f;
-    m_pSectors[1].m_pNeighbors[4] = &m_pSectors[0];
-
-    m_pSectors[1].m_Ceiling = 9.f;
-    m_pSectors[1].m_Floor = -6.f;
-
     m_NumEntities = 1;
     m_pEntities = new IEntity*[m_NumEntities];
     m_pEntities[0] = new CPlayer({0,1,0});
-
-    m_pCurrentSector = &m_pSectors[0];
-
     return InitTextures();
 }
 

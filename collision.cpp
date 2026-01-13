@@ -34,6 +34,17 @@ float PointDistance(Vector2 p1, Vector2 p2)
     return sqrtf(dx * dx + dy * dy);
 }
 
+// This function should return negative for valid sectors
+float GetClockwise(Vector2 *pVecArr, size_t vecnum)
+{
+    float res = 0;
+    for(size_t i = 0; i < vecnum; i++)
+    {
+        res += (pVecArr[(i + 1) % vecnum].x - pVecArr[i].x) * (pVecArr[(i + 1) % vecnum].y + pVecArr[i].y);
+    }
+    return res;
+}
+
 void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector)
 {
     CSector *pPrevSector = nullptr;

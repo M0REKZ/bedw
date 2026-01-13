@@ -9,6 +9,7 @@
 bool IntersectLines(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Vector2 &intersection);
 float GetAngleBetweenPoints(Vector2 p1, Vector2 p2);
 float PointDistance(Vector2 p1, Vector2 p2);
+float GetClockwise(Vector2 * pVecArr, size_t vecnum);
 
 void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector = nullptr);
 
