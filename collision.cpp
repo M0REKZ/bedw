@@ -81,7 +81,7 @@ float GetSlopeAltitude(Vector2 Point1, Vector2 Point2, Vector2 HighestPoint, flo
 {
     Vector2 MiddlePoint = {(Point1.x + Point2.x)/2, (Point1.y + Point2.y)/2};
     float SlopeBase = PointDistance(MiddlePoint, HighestPoint);
-    float Multiplier = HighestPointAltitude/SlopeBase;
+    float Multiplier = (HighestPointAltitude + (HighestPointAltitude < 0.f ? -1.f : 1.f))/SlopeBase;
     Vector2 ClosestPoint = ClosestPointOnLine(Point1, Point2, CheckingPoint);
     return Multiplier * PointDistance(ClosestPoint, CheckingPoint);
 }
@@ -176,25 +176,77 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
                 float wallangle = GetAngleBetweenPoints(pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices]);
                 RadiusColDir = {Radius * cosf(wallangle + M_PI_2), Radius * sinf(wallangle + M_PI_2)};
 
+
+                float floor, ceiling;
                 //it is a neighbor sector portal
-                if(pSector->m_pNeighbors[vertid] && Pos.y >= pSector->m_pNeighbors[vertid]->m_Floor && Pos.y <= pSector->m_pNeighbors[vertid]->m_Ceiling)
+                if(pSector->m_pNeighbors[vertid])
                 {
-                    if(IsPointInsideSector(pSector->m_pNeighbors[vertid], {Pos.x + InOutVel.x, Pos.z + InOutVel.z}))
+                    floor = pSector->m_pNeighbors[vertid]->m_Floor;
+                    ceiling = pSector->m_pNeighbors[vertid]->m_Ceiling;
+
+                    if(pSector->m_pNeighbors[vertid]->m_IsCeilingSlope && pSector->m_pNeighbors[vertid]->m_NumVertices == 3)
                     {
-                        pPrevSector = pSector;
-                        pNextSector = pSector->m_pNeighbors[vertid];
+                        int ids[2] = {0,1};
+
+                        if(pSector->m_pNeighbors[vertid]->m_CeilingSlopeVert == 0)
+                        {
+                            ids[0] = 1;
+                            ids[1] = 2;
+                        }
+                        else if(pSector->m_pNeighbors[vertid]->m_CeilingSlopeVert == 1)
+                        {
+                            ids[0] = 2;
+                            ids[1] = 0;
+                        }
+
+                        ceiling = GetSlopeAltitude(pSector->m_pNeighbors[vertid]->m_pVertices[ids[0]], pSector->m_pNeighbors[vertid]->m_pVertices[ids[1]],
+                            pSector->m_pNeighbors[vertid]->m_pVertices[pSector->m_pNeighbors[vertid]->m_CeilingSlopeVert], pSector->m_pNeighbors[vertid]->m_CeilingSlopeAltitude - pSector->m_pNeighbors[vertid]->m_Ceiling, {Pos.x, Pos.z});
+                        ceiling += pSector->m_pNeighbors[vertid]->m_Ceiling;
+                    }
+
+                    if(pSector->m_pNeighbors[vertid]->m_IsFloorSlope && pSector->m_pNeighbors[vertid]->m_NumVertices == 3)
+                    {
+                        int ids[2] = {0,1};
+
+                        if(pSector->m_pNeighbors[vertid]->m_FloorSlopeVert == 0)
+                        {
+                            ids[0] = 1;
+                            ids[1] = 2;
+                        }
+                        else if(pSector->m_pNeighbors[vertid]->m_FloorSlopeVert == 1)
+                        {
+                            ids[0] = 2;
+                            ids[1] = 0;
+                        }
+
+                        floor = GetSlopeAltitude(pSector->m_pNeighbors[vertid]->m_pVertices[ids[0]], pSector->m_pNeighbors[vertid]->m_pVertices[ids[1]],
+                            pSector->m_pNeighbors[vertid]->m_pVertices[pSector->m_pNeighbors[vertid]->m_FloorSlopeVert], pSector->m_pNeighbors[vertid]->m_FloorSlopeAltitude - pSector->m_pNeighbors[vertid]->m_Floor, {Pos.x, Pos.z});
+                        floor += pSector->m_pNeighbors[vertid]->m_Floor;
                     }
                 }
                 //i touched a wall
-                else if(IntersectLines({Pos.x, Pos.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
+                if(IntersectLines({Pos.x, Pos.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
                     pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices], Intersection) ||
                 IntersectLines({-RadiusColDir.x + Pos.x + InOutVel.x, -RadiusColDir.y + Pos.z + InOutVel.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
                     pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices], Intersection))
                 {
-                    InOutVel.x = Intersection.x - Pos.x;
-                    InOutVel.z = Intersection.y - Pos.z;
-                    InOutVel.x += RadiusColDir.x;
-                    InOutVel.z += RadiusColDir.y;
+                    if(pSector->m_pNeighbors[vertid] && Pos.y >= floor && Pos.y <= ceiling)
+                    {
+                        
+                            if(IsPointInsideSector(pSector->m_pNeighbors[vertid], {Pos.x + InOutVel.x, Pos.z + InOutVel.z}))
+                            {
+                                pPrevSector = pSector;
+                                pNextSector = pSector->m_pNeighbors[vertid];
+                            }
+                        
+                    }
+                    else
+                    {
+                        InOutVel.x = Intersection.x - Pos.x;
+                        InOutVel.z = Intersection.y - Pos.z;
+                        InOutVel.x += RadiusColDir.x;
+                        InOutVel.z += RadiusColDir.y;
+                    }
                 }
             }
         }

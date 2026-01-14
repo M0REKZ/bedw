@@ -85,10 +85,34 @@ void CGame::RenderSectors()
             {
                 CSector *pNeigh = m_pSectors[i].m_pNeighbors[vertid];
                 Vector3 VertsNeigh[4];
-                VertsNeigh[0] = {m_pSectors[i].m_pVertices[vertid].x, pNeigh->m_Ceiling, m_pSectors[i].m_pVertices[vertid].y};
-                VertsNeigh[1] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, pNeigh->m_Ceiling, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
-                VertsNeigh[2] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, pNeigh->m_Floor, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
-                VertsNeigh[3] = {m_pSectors[i].m_pVertices[vertid].x, pNeigh->m_Floor, m_pSectors[i].m_pVertices[vertid].y};
+
+                if(pNeigh->m_IsCeilingSlope && pNeigh->m_NumVertices == 3 &&
+                    m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x == m_pSectors[i].m_pVertices[pNeigh->m_CeilingSlopeVert].x &&
+                    m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y == m_pSectors[i].m_pVertices[pNeigh->m_CeilingSlopeVert].y)
+                    VertsNeigh[0] = {m_pSectors[i].m_pVertices[vertid].x, pNeigh->m_CeilingSlopeAltitude, m_pSectors[i].m_pVertices[vertid].y};
+                else
+                    VertsNeigh[0] = {m_pSectors[i].m_pVertices[vertid].x, pNeigh->m_Ceiling, m_pSectors[i].m_pVertices[vertid].y};
+                
+                if(pNeigh->m_IsCeilingSlope && pNeigh->m_NumVertices == 3 &&
+                    m_pSectors[i].m_pVertices[vertid].x == m_pSectors[i].m_pVertices[pNeigh->m_CeilingSlopeVert].x &&
+                    m_pSectors[i].m_pVertices[vertid].y == m_pSectors[i].m_pVertices[pNeigh->m_CeilingSlopeVert].y)
+                    VertsNeigh[1] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, pNeigh->m_CeilingSlopeAltitude, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
+                else
+                    VertsNeigh[1] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, pNeigh->m_Ceiling, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
+
+                if(pNeigh->m_IsFloorSlope && pNeigh->m_NumVertices == 3 &&
+                    m_pSectors[i].m_pVertices[vertid].x == m_pSectors[i].m_pVertices[pNeigh->m_FloorSlopeVert].x &&
+                    m_pSectors[i].m_pVertices[vertid].y == m_pSectors[i].m_pVertices[pNeigh->m_FloorSlopeVert].y)
+                    VertsNeigh[1] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, pNeigh->m_FloorSlopeAltitude, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
+                else
+                    VertsNeigh[2] = {m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, pNeigh->m_Floor, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y};
+
+                if(pNeigh->m_IsFloorSlope && pNeigh->m_NumVertices == 3 &&
+                    m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x == m_pSectors[i].m_pVertices[pNeigh->m_FloorSlopeVert].x &&
+                    m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y == m_pSectors[i].m_pVertices[pNeigh->m_FloorSlopeVert].y)
+                    VertsNeigh[3] = {m_pSectors[i].m_pVertices[vertid].x, pNeigh->m_FloorSlopeAltitude, m_pSectors[i].m_pVertices[vertid].y};
+                else
+                    VertsNeigh[3] = {m_pSectors[i].m_pVertices[vertid].x, pNeigh->m_Floor, m_pSectors[i].m_pVertices[vertid].y};
 
 
                 //top
