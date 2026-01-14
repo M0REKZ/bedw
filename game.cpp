@@ -213,21 +213,82 @@ void CGame::RenderSectors2D(CSector *pSelectedSector)
         // walls
         for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
+            if(&m_pSectors[i] == pSelectedSector || &m_pSectors[i] == &m_pSectors[m_EditorNeighSec])
+                continue;
+
             if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC && &m_pSectors[m_EditorNeighSec] == &m_pSectors[i])
                 DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,255,0,255});
-            else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && vertid == m_EditorSelectedVert && (m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT ? pSelectedSector == &m_pSectors[i] : (m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT ? &m_pSectors[m_EditorNeighSec] == &m_pSectors[i] : false)))
+            else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && vertid == m_EditorSelectedVert && (m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT ? &m_pSectors[m_EditorNeighSec] == &m_pSectors[i] : false))
                 DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,255,0,255});
             else if(m_pSectors[i].m_pNeighbors[vertid])
             {
-                if(pSelectedSector == &m_pSectors[i])
-                    DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {0,255,255,255});
-                else
-                    DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {0,0,255,255});
+                DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {0,0,255,255});
             }
-            else if(pSelectedSector == &m_pSectors[i])
-                DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {0,255,0,255});
             else
                 DrawLineV(m_pSectors[i].m_pVertices[vertid], m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)], {255,0,0,255});
+
+            if(m_pSectors[i].m_IsCeilingSlope)
+            {
+                DrawCircleV(m_pSectors[i].m_pVertices[m_pSectors[i].m_CeilingSlopeVert],5.f,{255,200,100,255});
+            }
+
+            if(m_pSectors[i].m_IsFloorSlope)
+            {
+                DrawCircleV(m_pSectors[i].m_pVertices[m_pSectors[i].m_FloorSlopeVert],3.f,{200,0,255,255});
+            }
+        }
+    }
+
+    //draw selected sector
+    for(int vertid = 0; vertid < pSelectedSector->m_NumVertices; vertid++)
+    {
+        if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC && &m_pSectors[m_EditorNeighSec] == pSelectedSector)
+            DrawLineV(pSelectedSector->m_pVertices[vertid], pSelectedSector->m_pVertices[(vertid + 1) % (pSelectedSector->m_NumVertices)], {255,255,0,255});
+        else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && vertid == m_EditorSelectedVert && m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_FIRST_VERT)
+            DrawLineV(pSelectedSector->m_pVertices[vertid], pSelectedSector->m_pVertices[(vertid + 1) % (pSelectedSector->m_NumVertices)], {255, 255, 0, 255});
+        else if(pSelectedSector->m_pNeighbors[vertid])
+        {
+            DrawLineV(pSelectedSector->m_pVertices[vertid], pSelectedSector->m_pVertices[(vertid + 1) % (pSelectedSector->m_NumVertices)], {0, 255, 255, 255});
+        }
+        else
+            DrawLineV(pSelectedSector->m_pVertices[vertid], pSelectedSector->m_pVertices[(vertid + 1) % (pSelectedSector->m_NumVertices)], {0, 255, 0, 255});
+
+        if(pSelectedSector->m_IsCeilingSlope)
+        {
+            DrawCircleV(pSelectedSector->m_pVertices[pSelectedSector->m_CeilingSlopeVert], 5.f, {255, 200, 100, 255});
+        }
+
+        if(pSelectedSector->m_IsFloorSlope)
+        {
+            DrawCircleV(pSelectedSector->m_pVertices[pSelectedSector->m_FloorSlopeVert], 3.f, {200, 0, 255, 255});
+        }
+    }
+
+    //for setting neighbor
+    if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && (m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC || m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT))
+    {
+        for(int vertid = 0; vertid < m_pSectors[m_EditorNeighSec].m_NumVertices; vertid++)
+        {
+            if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_NEIGH_SEC && &m_pSectors[m_EditorNeighSec] == &m_pSectors[m_EditorNeighSec])
+                DrawLineV(m_pSectors[m_EditorNeighSec].m_pVertices[vertid], m_pSectors[m_EditorNeighSec].m_pVertices[(vertid + 1) % (m_pSectors[m_EditorNeighSec].m_NumVertices)], {255,255,0,255});
+            else if(m_EditorState == EDITORSTATE_SETTING_NEIGHBOR && vertid == m_EditorSelectedVert && m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
+                DrawLineV(m_pSectors[m_EditorNeighSec].m_pVertices[vertid], m_pSectors[m_EditorNeighSec].m_pVertices[(vertid + 1) % (m_pSectors[m_EditorNeighSec].m_NumVertices)], {255, 255, 0, 255});
+            else if(m_pSectors[m_EditorNeighSec].m_pNeighbors[vertid])
+            {
+                DrawLineV(m_pSectors[m_EditorNeighSec].m_pVertices[vertid], m_pSectors[m_EditorNeighSec].m_pVertices[(vertid + 1) % (m_pSectors[m_EditorNeighSec].m_NumVertices)], {0, 255, 255, 255});
+            }
+            else
+                DrawLineV(pSelectedSector->m_pVertices[vertid], m_pSectors[m_EditorNeighSec].m_pVertices[(vertid + 1) % (m_pSectors[m_EditorNeighSec].m_NumVertices)], {0, 255, 0, 255});
+
+            if(m_pSectors[m_EditorNeighSec].m_IsCeilingSlope)
+            {
+                DrawCircleV(m_pSectors[m_EditorNeighSec].m_pVertices[m_pSectors[m_EditorNeighSec].m_CeilingSlopeVert], 5.f, {255, 200, 100, 255});
+            }
+
+            if(m_pSectors[m_EditorNeighSec].m_IsFloorSlope)
+            {
+                DrawCircleV(m_pSectors[m_EditorNeighSec].m_pVertices[m_pSectors[m_EditorNeighSec].m_FloorSlopeVert], 3.f, {200, 0, 255, 255});
+            }
         }
     }
 
@@ -269,6 +330,18 @@ void CGame::RenderEditorInfo()
     else
     {
         snprintf(tempchar, sizeof(tempchar), "Current Sector: %llu\nCeiling: %f\nFloor: %f\n", sectorid, m_pCurrentSector->m_Ceiling, m_pCurrentSector->m_Floor);
+        if(m_pCurrentSector->m_IsCeilingSlope)
+        {
+            char temp2[256] = {0};
+            snprintf(temp2, sizeof(temp2), "%sCeiling Slope Vertex: %d, Altitude: %f\n", tempchar, m_pCurrentSector->m_CeilingSlopeVert, m_pCurrentSector->m_CeilingSlopeAltitude);
+            strncpy(tempchar, temp2, sizeof(tempchar));
+        }
+        if(m_pCurrentSector->m_IsFloorSlope)
+        {
+            char temp2[256] = {0};
+            snprintf(temp2, sizeof(temp2), "%sFloor Slope Vertex: %d, Altitude: %f\n", tempchar, m_pCurrentSector->m_FloorSlopeVert, m_pCurrentSector->m_FloorSlopeAltitude);
+            strncpy(tempchar, temp2, sizeof(tempchar));
+        }
     }
 
     DrawText(tempchar, 5 + g_Globals.m_RaylibCamera2D.target.x, 5 + g_Globals.m_RaylibCamera2D.target.y, 1, {255,255,255,255});
@@ -347,6 +420,22 @@ void CGame::UpdateEditorInput()
         if(pInput->m_EditorCeilingKey)
         {
             m_EditorState = EDITORSTATE_MOVING_CEILING;
+        }
+
+        if(pInput->m_EditorCeilingSlopeKey && m_pCurrentSector->m_NumVertices == 3)
+        {
+            m_EditorState = EDITORSTATE_MOVING_SLOPE_CEILING;
+            m_pCurrentSector->m_CeilingSlopeVert = 0;
+            m_pCurrentSector->m_CeilingSlopeAltitude = m_pCurrentSector->m_Ceiling;
+            m_pCurrentSector->m_IsCeilingSlope = true;
+        }
+
+        if(pInput->m_EditorFloorSlopeKey && m_pCurrentSector->m_NumVertices == 3)
+        {
+            m_EditorState = EDITORSTATE_MOVING_SLOPE_FLOOR;
+            m_pCurrentSector->m_FloorSlopeVert = 0;
+            m_pCurrentSector->m_FloorSlopeAltitude = m_pCurrentSector->m_Floor;
+            m_pCurrentSector->m_IsFloorSlope = true;
         }
 
         static bool waiting_for_saveload_release = false;
@@ -442,9 +531,19 @@ void CGame::UpdateEditorInput()
             {
                 //resize array for new sector
                 CSector * pTempSec = new CSector[m_NumSectors+1];
+                
+                //copy data
                 for(int i = 0; i < m_NumSectors; i++)
                 {
                     pTempSec[i] = m_pSectors[i];
+                    // remake neighbor pointers
+                    for(int j = 0; j < m_pSectors[i].m_NumVertices; j++)
+                    {
+                        if(m_pSectors[i].m_pNeighbors[j])
+                            pTempSec[i].m_pNeighbors[j] = &pTempSec[SectorPointerToID(m_pSectors[i].m_pNeighbors[j])];
+                        else
+                            pTempSec[i].m_pNeighbors[j] = nullptr;
+                    }
                 }
                 delete[] m_pSectors; //just delete the old array, but not the data
                 m_pSectors = pTempSec;
@@ -545,7 +644,7 @@ void CGame::UpdateEditorInput()
                 }
                 else if(m_EditorSettingNeighborState == EDITORSETTINGNEIGHBOR_SECOND_VERT)
                 {
-                    m_EditorSelectedVert++;
+                    m_EditorSelectedVert--;
                     if(m_EditorSelectedVert < 0)
                         m_EditorSelectedVert = m_pSectors[m_EditorNeighSec].m_NumVertices - 1;
                 }
@@ -663,6 +762,114 @@ void CGame::UpdateEditorInput()
             {
                 waiting_for_key_release = true;
                 m_pCurrentSector->m_Floor--;
+            }
+        }
+        else if(pInput->m_Enter)
+        {
+            m_EditorState = EDITORSTATE_NONE;
+        }
+        else
+        {
+            waiting_for_key_release = false;
+        }
+    }
+    else if(m_EditorState == EDITORSTATE_MOVING_SLOPE_CEILING)
+    {
+        static bool waiting_for_key_release = false;
+        if(pInput->m_ArrowUp)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_IsCeilingSlope = true;
+                m_pCurrentSector->m_CeilingSlopeAltitude++;
+            }
+        }
+        else if(pInput->m_ArrowDown)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_IsCeilingSlope = true;
+                m_pCurrentSector->m_CeilingSlopeAltitude--;
+            }
+        }
+        if(pInput->m_ArrowLeft)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_CeilingSlopeVert--;
+                if(m_pCurrentSector->m_CeilingSlopeVert < 0)
+                {
+                    m_pCurrentSector->m_CeilingSlopeVert = 2;
+                }
+            }
+        }
+        else if(pInput->m_ArrowRight)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_CeilingSlopeVert++;
+                if(m_pCurrentSector->m_CeilingSlopeVert >= 3)
+                {
+                    m_pCurrentSector->m_CeilingSlopeVert = 0;
+                }
+            }
+        }
+        else if(pInput->m_Enter)
+        {
+            m_EditorState = EDITORSTATE_NONE;
+        }
+        else
+        {
+            waiting_for_key_release = false;
+        }
+    }
+    else if(m_EditorState == EDITORSTATE_MOVING_SLOPE_FLOOR)
+    {
+        static bool waiting_for_key_release = false;
+        if(pInput->m_ArrowUp)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_IsFloorSlope = true;
+                m_pCurrentSector->m_FloorSlopeAltitude++;
+            }
+        }
+        else if(pInput->m_ArrowDown)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_IsFloorSlope = true;
+                m_pCurrentSector->m_FloorSlopeAltitude--;
+            }
+        }
+        if(pInput->m_ArrowLeft)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_FloorSlopeVert--;
+                if(m_pCurrentSector->m_FloorSlopeVert < 0)
+                {
+                    m_pCurrentSector->m_FloorSlopeVert = 2;
+                }
+            }
+        }
+        else if(pInput->m_ArrowRight)
+        {
+            if(!waiting_for_key_release)
+            {
+                waiting_for_key_release = true;
+                m_pCurrentSector->m_FloorSlopeVert++;
+                if(m_pCurrentSector->m_FloorSlopeVert >= 3)
+                {
+                    m_pCurrentSector->m_FloorSlopeVert = 0;
+                }
             }
         }
         else if(pInput->m_Enter)

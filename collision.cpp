@@ -22,6 +22,30 @@ bool IntersectLines(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, Vector2 &int
     return false;
 }
 
+bool IsPointInsideTriangle(Vector2 p, Vector2 p0, Vector2 p1, Vector2 p2)
+{
+    float s = (p0.x - p2.x) * (p.y - p2.y) - (p0.y - p2.y) * (p.x - p2.x);
+    float t = (p1.x - p0.x) * (p.y - p0.y) - (p1.y - p0.y) * (p.x - p0.x);
+
+    if ((s < 0) != (t < 0) && s != 0 && t != 0)
+        return false;
+
+    float d = (p2.x - p1.x) * (p.y - p1.y) - (p2.y - p1.y) * (p.x - p1.x);
+    return d == 0 || (d < 0) == (s + t <= 0);
+}
+
+bool IsPointInsideSector(CSector * pSector, Vector2 Point)
+{
+    for(int i = 1; i < pSector->m_NumVertices; i++)
+    {
+        if(IsPointInsideTriangle(Point ,pSector->m_pVertices[0], pSector->m_pVertices[i], pSector->m_pVertices[(i + 1) % pSector->m_NumVertices]))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 float GetAngleBetweenPoints(Vector2 p1, Vector2 p2)
 {
     return atan2f(p2.y - p1.y, p2.x - p1.x);
@@ -127,36 +151,45 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
         pNextSector = nullptr;
         Vector2 Intersection = {Pos.x, Pos.z};
         Vector2 RadiusColDir;
+        Vector2 PlayerRadiusColDir;
 
-        for(int vertid = 0; vertid < pCurrentSector->m_NumVertices; vertid++)
+        for(int secid = -1; secid < pCurrentSector->m_NumVertices; secid++)
         {
-            //ignore the sector i was previously in
-            if(pPrevSector && pCurrentSector->m_pNeighbors[vertid] && pCurrentSector->m_pNeighbors[vertid] == pPrevSector)
+            CSector * pSector;
+            if(secid == -1)
+                pSector = pCurrentSector;
+            else
+                pSector = pCurrentSector->m_pNeighbors[secid];
+
+            if(!pSector)
                 continue;
 
-            float wallangle = GetAngleBetweenPoints(pCurrentSector->m_pVertices[vertid], pCurrentSector->m_pVertices[(vertid + 1) % pCurrentSector->m_NumVertices]);
-
-            RadiusColDir = {Radius * cosf(wallangle + M_PI_2), Radius * sinf(wallangle + M_PI_2)};
-
-            //i touched a wall
-            if(IntersectLines({Pos.x, Pos.z}, {Pos.x + RadiusColDir.x, Pos.z + RadiusColDir.y},
-                pCurrentSector->m_pVertices[vertid], pCurrentSector->m_pVertices[(vertid + 1) % pCurrentSector->m_NumVertices], Intersection) ||
-            IntersectLines({Pos.x, Pos.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
-                pCurrentSector->m_pVertices[vertid], pCurrentSector->m_pVertices[(vertid + 1) % pCurrentSector->m_NumVertices], Intersection) ||
-            IntersectLines({RadiusColDir.x + Pos.x + InOutVel.x, RadiusColDir.y + Pos.z + InOutVel.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
-                pCurrentSector->m_pVertices[vertid], pCurrentSector->m_pVertices[(vertid + 1) % pCurrentSector->m_NumVertices], Intersection))
+            for(int vertid = 0; vertid < pSector->m_NumVertices; vertid++)
             {
-                //evil: ignore if intersection is the same as position, to avoid going back to previous sector next update
-                if(Pos.x + InOutVel.x == Intersection.x && Pos.z + InOutVel.z == Intersection.y)
+                //ignore the sector i was previously in
+                if(pPrevSector && pSector->m_pNeighbors[vertid] && pSector->m_pNeighbors[vertid] == pPrevSector)
+                    continue;
+                
+                if(pSector->m_pNeighbors[vertid] && pSector->m_pNeighbors[vertid] == pCurrentSector)
                     continue;
 
+                float wallangle = GetAngleBetweenPoints(pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices]);
+                RadiusColDir = {Radius * cosf(wallangle + M_PI_2), Radius * sinf(wallangle + M_PI_2)};
+
                 //it is a neighbor sector portal
-                if(pCurrentSector->m_pNeighbors[vertid] && Pos.y >= pCurrentSector->m_pNeighbors[vertid]->m_Floor && Pos.y <= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
+                if(pSector->m_pNeighbors[vertid] && Pos.y >= pSector->m_pNeighbors[vertid]->m_Floor && Pos.y <= pSector->m_pNeighbors[vertid]->m_Ceiling)
                 {
-                    pPrevSector = pCurrentSector;
-                    pNextSector = pCurrentSector->m_pNeighbors[vertid];
+                    if(IsPointInsideSector(pSector->m_pNeighbors[vertid], {Pos.x + InOutVel.x, Pos.z + InOutVel.z}))
+                    {
+                        pPrevSector = pSector;
+                        pNextSector = pSector->m_pNeighbors[vertid];
+                    }
                 }
-                else //it is not
+                //i touched a wall
+                else if(IntersectLines({Pos.x, Pos.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
+                    pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices], Intersection) ||
+                IntersectLines({-RadiusColDir.x + Pos.x + InOutVel.x, -RadiusColDir.y + Pos.z + InOutVel.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
+                    pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices], Intersection))
                 {
                     InOutVel.x = Intersection.x - Pos.x;
                     InOutVel.z = Intersection.y - Pos.z;

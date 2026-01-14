@@ -172,4 +172,22 @@ void CInputHandler::UpdateInput()
     {
         m_Inputs.m_EditorFloorKey = false;
     }
+
+    if(IsKeyDown(KEY_G))
+    {
+        m_Inputs.m_EditorCeilingSlopeKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorCeilingSlopeKey = false;
+    }
+
+    if(IsKeyDown(KEY_V))
+    {
+        m_Inputs.m_EditorFloorSlopeKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorFloorSlopeKey = false;
+    }
 }

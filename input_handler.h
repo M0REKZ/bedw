@@ -27,6 +27,8 @@ struct SInput
     bool m_EditorFloorKey = false;
     bool m_EditorSaveLevelKey = false;
     bool m_EditorLoadLevelKey = false;
+    bool m_EditorCeilingSlopeKey = false;
+    bool m_EditorFloorSlopeKey = false;
 };
 
 class CInputHandler

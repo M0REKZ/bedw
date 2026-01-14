@@ -160,6 +160,18 @@ bool CLevelHandler::SaveLevel(const char *filename)
 
         file << "NUMVERTICES " << pSector->m_NumVertices << std::endl;
 
+        if(pSector->m_IsCeilingSlope)
+        {
+            file << "CEILSLOPEID " << pSector->m_CeilingSlopeVert << std::endl;
+            file << "CEILSLOPEALT " << pSector->m_CeilingSlopeAltitude << std::endl;
+        }
+
+        if(pSector->m_IsFloorSlope)
+        {
+            file << "FLOSLOPEID " << pSector->m_FloorSlopeVert << std::endl;
+            file << "FLOSLOPEALT " << pSector->m_FloorSlopeAltitude << std::endl;
+        }
+
         for(int vertid = 0; vertid < pSector->m_NumVertices; vertid++)
         {
             file << "CUR_VERT " << vertid << std::endl;

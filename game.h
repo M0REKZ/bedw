@@ -66,6 +66,8 @@ class CGame
         EDITORSTATE_SETTING_NEIGHBOR,
         EDITORSTATE_MOVING_FLOOR,
         EDITORSTATE_MOVING_CEILING,
+        EDITORSTATE_MOVING_SLOPE_CEILING,
+        EDITORSTATE_MOVING_SLOPE_FLOOR,
     } m_EditorState = EDITORSTATE_NONE;
     std::vector<Vector2> m_EditorVertices;
     enum EEditorSettingNeighborState
