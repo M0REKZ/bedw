@@ -448,6 +448,31 @@ void CGame::UpdateEditorInput()
 
     if(m_EditorState == EDITORSTATE_NONE)
     {
+        static bool waiting_for_click_release = false;
+        if(pInput->m_MouseClick)
+        {
+            if(!waiting_for_click_release)
+            {
+                waiting_for_click_release = true;
+
+                float x = pInput->m_MousePos.x + g_Globals.m_RaylibCamera2D.target.x;
+                float y = pInput->m_MousePos.y + g_Globals.m_RaylibCamera2D.target.y;
+
+                for(int i = 0; i < m_NumSectors; i++)
+                {
+                    if(IsPointInsideSector(&m_pSectors[i], {x,y}))
+                    {
+                        m_pCurrentSector = &m_pSectors[i];
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            waiting_for_click_release = false;
+        }
+
         if(pInput->m_Jump)
         {
             m_EditorState = EDITORSTATE_CREATING_SECTOR;
