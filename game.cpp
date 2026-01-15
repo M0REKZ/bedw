@@ -81,7 +81,9 @@ void CGame::RenderSectors()
             rlSetTexture(m_Textures[m_pSectors[i].m_pTexturesIDs[vertid]].id);
             rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
 
-            if(m_pSectors[i].m_pNeighbors[vertid])
+            if(m_pSectors[i].m_Floor <= m_pSectors[i].m_Ceiling &&
+                m_pSectors[i].m_pNeighbors[vertid] &&
+                m_pSectors[i].m_pNeighbors[vertid]->m_Floor <= m_pSectors[i].m_pNeighbors[vertid]->m_Ceiling)
             {
                 CSector *pNeigh = m_pSectors[i].m_pNeighbors[vertid];
                 Vector3 VertsNeigh[4];

@@ -16,5 +16,7 @@ bool IsPointInsideTriangle(Vector2 p, Vector2 p0, Vector2 p1, Vector2 p2);
 bool IsPointInsideSector(CSector * pSector, Vector2 Point);
 
 void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector = nullptr);
+void DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector);
+void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector);
 
 #endif

@@ -92,59 +92,8 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
     CSector *pNextSector = nullptr;
     CSector *pCurrentSector = ppInOutSector ? *ppInOutSector : g_Game.GetCurrentSector();
 
-    if(!pCurrentSector->m_IsFloorSlope)
-    {
-        if((Pos.y - Radius) + InOutVel.y < pCurrentSector->m_Floor)
-            InOutVel.y = pCurrentSector->m_Floor - (Pos.y - Radius);
-    }
-    else if(pCurrentSector->m_NumVertices == 3)
-    {
-        int ids[2] = {0,1};
-
-        if(pCurrentSector->m_FloorSlopeVert == 0)
-        {
-            ids[0] = 1;
-            ids[1] = 2;
-        }
-        else if(pCurrentSector->m_FloorSlopeVert == 1)
-        {
-            ids[0] = 2;
-            ids[1] = 0;
-        }
-
-        float altitude = GetSlopeAltitude(pCurrentSector->m_pVertices[ids[0]], pCurrentSector->m_pVertices[ids[1]],
-            pCurrentSector->m_pVertices[pCurrentSector->m_FloorSlopeVert], pCurrentSector->m_FloorSlopeAltitude - pCurrentSector->m_Floor, {Pos.x, Pos.z});
-        altitude += pCurrentSector->m_Floor;
-        if((Pos.y - Radius) + InOutVel.y < altitude)
-            InOutVel.y = altitude - (Pos.y - Radius);
-    }
-    
-    if(!pCurrentSector->m_IsCeilingSlope)
-    {
-        if((Pos.y + Radius) + InOutVel.y > pCurrentSector->m_Ceiling)
-            InOutVel.y = pCurrentSector->m_Ceiling - (Pos.y + Radius);
-    }
-    else if(pCurrentSector->m_NumVertices == 3)
-    {
-        int ids[2] = {0,1};
-
-        if(pCurrentSector->m_CeilingSlopeVert == 0)
-        {
-            ids[0] = 1;
-            ids[1] = 2;
-        }
-        else if(pCurrentSector->m_CeilingSlopeVert == 1)
-        {
-            ids[0] = 2;
-            ids[1] = 0;
-        }
-
-        float altitude = GetSlopeAltitude(pCurrentSector->m_pVertices[ids[0]], pCurrentSector->m_pVertices[ids[1]],
-            pCurrentSector->m_pVertices[pCurrentSector->m_CeilingSlopeVert], pCurrentSector->m_CeilingSlopeAltitude - pCurrentSector->m_Ceiling, {Pos.x, Pos.z});
-        altitude += pCurrentSector->m_Ceiling;
-        if((Pos.y + Radius) + InOutVel.y > altitude)
-            InOutVel.y = altitude - (Pos.y + Radius);
-    }
+    DoFloorCollision(Pos, InOutVel,Radius, pCurrentSector);    
+    DoCeilingCollision(Pos, InOutVel, Radius, pCurrentSector);
 
     do
     {
@@ -166,20 +115,47 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
 
             for(int vertid = 0; vertid < pSector->m_NumVertices; vertid++)
             {
-                //ignore the sector i was previously in
-                if(pPrevSector && pSector->m_pNeighbors[vertid] && pSector->m_pNeighbors[vertid] == pPrevSector)
-                    continue;
-                
-                if(pSector->m_pNeighbors[vertid] && pSector->m_pNeighbors[vertid] == pCurrentSector)
-                    continue;
+                bool notportal = false;
+                if(pSector->m_Floor > pSector->m_Ceiling)
+                    notportal = true;
+
+                if(!notportal)
+                {
+                    //ignore the sector i was previously in
+                    if(pPrevSector && pSector->m_pNeighbors[vertid] && pSector->m_pNeighbors[vertid] == pPrevSector)
+                        continue;
+                    
+                    if(pSector->m_pNeighbors[vertid] && pSector->m_pNeighbors[vertid] == pCurrentSector)
+                        continue;
+                }
 
                 float wallangle = GetAngleBetweenPoints(pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices]);
                 RadiusColDir = {Radius * cosf(wallangle + M_PI_2), Radius * sinf(wallangle + M_PI_2)};
-
+                if(notportal)
+                {
+                    RadiusColDir.x *= -1.f;
+                    RadiusColDir.y *= -1.f;
+                    if(Pos.y <= pSector->m_Ceiling || Pos.y >= pSector->m_Floor)
+                    {
+                        if(IsPointInsideSector(pSector, {Pos.x, Pos.z}))
+                        {
+                            if(Pos.y > pSector->m_Floor)
+                            {
+                                DoFloorCollision(Pos, InOutVel, Radius, pSector);
+                            }
+                            else if(Pos.y < pSector->m_Ceiling)
+                            {
+                                DoCeilingCollision(Pos, InOutVel, Radius, pSector);
+                            }
+                            
+                        }
+                    }
+                }
 
                 float floor, ceiling;
+                
                 //it is a neighbor sector portal
-                if(pSector->m_pNeighbors[vertid])
+                if(!notportal && pSector->m_pNeighbors[vertid])
                 {
                     floor = pSector->m_pNeighbors[vertid]->m_Floor;
                     ceiling = pSector->m_pNeighbors[vertid]->m_Ceiling;
@@ -230,17 +206,17 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
                 IntersectLines({-RadiusColDir.x + Pos.x + InOutVel.x, -RadiusColDir.y + Pos.z + InOutVel.z}, {Pos.x + InOutVel.x, Pos.z + InOutVel.z},
                     pSector->m_pVertices[vertid], pSector->m_pVertices[(vertid + 1) % pSector->m_NumVertices], Intersection))
                 {
-                    if(pSector->m_pNeighbors[vertid] && Pos.y >= floor && Pos.y <= ceiling)
+                    if(pSector->m_pNeighbors[vertid] && 
+                        !notportal && //dont do for inverted sectors
+                        Pos.y >= floor && Pos.y <= ceiling)
                     {
-                        
-                            if(IsPointInsideSector(pSector->m_pNeighbors[vertid], {Pos.x + InOutVel.x, Pos.z + InOutVel.z}))
-                            {
-                                pPrevSector = pSector;
-                                pNextSector = pSector->m_pNeighbors[vertid];
-                            }
-                        
+                        if(IsPointInsideSector(pSector->m_pNeighbors[vertid], {Pos.x + InOutVel.x, Pos.z + InOutVel.z}))
+                        { 
+                            pPrevSector = pSector;
+                            pNextSector = pSector->m_pNeighbors[vertid];
+                        }
                     }
-                    else
+                    else if(!(notportal && (Pos.y <= pSector->m_Ceiling || Pos.y >= pSector->m_Floor)))
                     {
                         InOutVel.x = Intersection.x - Pos.x;
                         InOutVel.z = Intersection.y - Pos.z;
@@ -260,4 +236,64 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
 
     if(ppInOutSector)
         *ppInOutSector = pCurrentSector;
+}
+
+void DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector)
+{
+    if(!pSector->m_IsCeilingSlope)
+    {
+        if((Pos.y + Radius) + InOutVel.y > pSector->m_Ceiling)
+            InOutVel.y = pSector->m_Ceiling - (Pos.y + Radius);
+    }
+    else if(pSector->m_NumVertices == 3)
+    {
+        int ids[2] = {0,1};
+
+        if(pSector->m_CeilingSlopeVert == 0)
+        {
+            ids[0] = 1;
+            ids[1] = 2;
+        }
+        else if(pSector->m_CeilingSlopeVert == 1)
+        {
+            ids[0] = 2;
+            ids[1] = 0;
+        }
+
+        float altitude = GetSlopeAltitude(pSector->m_pVertices[ids[0]], pSector->m_pVertices[ids[1]],
+            pSector->m_pVertices[pSector->m_CeilingSlopeVert], pSector->m_CeilingSlopeAltitude - pSector->m_Ceiling, {Pos.x, Pos.z});
+        altitude += pSector->m_Ceiling;
+        if((Pos.y + Radius) + InOutVel.y > altitude)
+            InOutVel.y = altitude - (Pos.y + Radius);
+    }
+}
+
+void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector)
+{
+    if(!pSector->m_IsFloorSlope)
+    {
+        if((Pos.y - Radius) + InOutVel.y < pSector->m_Floor)
+            InOutVel.y = pSector->m_Floor - (Pos.y - Radius);
+    }
+    else if(pSector->m_NumVertices == 3)
+    {
+        int ids[2] = {0,1};
+
+        if(pSector->m_FloorSlopeVert == 0)
+        {
+            ids[0] = 1;
+            ids[1] = 2;
+        }
+        else if(pSector->m_FloorSlopeVert == 1)
+        {
+            ids[0] = 2;
+            ids[1] = 0;
+        }
+
+        float altitude = GetSlopeAltitude(pSector->m_pVertices[ids[0]], pSector->m_pVertices[ids[1]],
+            pSector->m_pVertices[pSector->m_FloorSlopeVert], pSector->m_FloorSlopeAltitude - pSector->m_Floor, {Pos.x, Pos.z});
+        altitude += pSector->m_Floor;
+        if((Pos.y - Radius) + InOutVel.y < altitude)
+            InOutVel.y = altitude - (Pos.y - Radius);
+    }
 }
