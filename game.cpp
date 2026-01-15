@@ -465,7 +465,6 @@ void CGame::UpdateEditorInput()
                     if(IsPointInsideSector(&m_pSectors[i], {x,y}))
                     {
                         m_pCurrentSector = &m_pSectors[i];
-                        break;
                     }
                 }
             }
