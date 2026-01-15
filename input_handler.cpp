@@ -83,6 +83,15 @@ void CInputHandler::UpdateInput()
         m_Inputs.m_MouseClick = false;
     }
 
+    if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    {
+        m_Inputs.m_MouseRightClick = true;
+    }
+    else
+    {
+        m_Inputs.m_MouseRightClick = false;
+    }
+
     if(IsKeyDown(KEY_ENTER))
     {
         m_Inputs.m_Enter = true;
@@ -189,5 +198,14 @@ void CInputHandler::UpdateInput()
     else
     {
         m_Inputs.m_EditorFloorSlopeKey = false;
+    }
+
+    if(IsKeyDown(KEY_Q))
+    {
+        m_Inputs.m_EditorPlaceEntityKey = true;
+    }
+    else
+    {
+        m_Inputs.m_EditorPlaceEntityKey = false;
     }
 }

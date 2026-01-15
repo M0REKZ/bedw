@@ -8,6 +8,12 @@
 #include <cmath>
 #include <cstdio>
 
+ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
+{
+    g_Game.SetCurrentSector(pSector);
+    return new CPlayer(Pos);
+}
+
 CPlayer::CPlayer(Vector3 Pos)
 {
     m_Pos = Pos;
@@ -88,4 +94,9 @@ void CPlayer::Render()
     BeginMode3D(g_Globals.m_RaylibCamera);
     DrawSphere(m_Pos, m_Radius, {0,255,0,255});
     EndMode3D();
+}
+
+int CPlayer::GetSectorID()
+{
+    return g_Game.SectorPointerToID(g_Game.GetCurrentSector());
 }

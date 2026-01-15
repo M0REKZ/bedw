@@ -8,6 +8,10 @@
 class CPlayer : public IEntity
 {
     public:
+
+    static ENTITY_ID(0);
+    static ENTITY_CREATOR_FUNC(PlayerCreator);
+
     float m_Angle = 0.f;
     float m_Radius = 1.f;
 
@@ -15,6 +19,8 @@ class CPlayer : public IEntity
 
     virtual void Update() override;
     virtual void Render() override;
+    virtual int GetSectorID() override;
+    virtual unsigned int GetEntityID() override { return SGetEntityID(); }
 };
 
 #endif

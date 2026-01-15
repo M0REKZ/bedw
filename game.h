@@ -3,8 +3,9 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <entities/entity_base.h>
 #include <vector>
+
+class IEntity;
 
 #define MAX_TEXTURES 10
 
@@ -47,6 +48,7 @@ class CGame
 
     //editor
     void RenderSectors2D(CSector * pSelectedSector);
+    void RenderEntities2D();
     void RenderEditorInfo();
     void RenderGrid();
     void UpdateEditorCamera();
@@ -68,6 +70,7 @@ class CGame
         EDITORSTATE_MOVING_CEILING,
         EDITORSTATE_MOVING_SLOPE_CEILING,
         EDITORSTATE_MOVING_SLOPE_FLOOR,
+        EDITORSTATE_PLACING_ENTITY,
     } m_EditorState = EDITORSTATE_NONE;
     std::vector<Vector2> m_EditorVertices;
     enum EEditorSettingNeighborState
@@ -79,6 +82,7 @@ class CGame
     int m_EditorSelectedVert = 0;
     int m_EditorFirstVert = 0;
     int m_EditorNeighSec = 0;
+    unsigned int m_EditorSelectedEntity = 0;
 
     bool Init();
     void Destroy();

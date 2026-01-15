@@ -5,7 +5,7 @@
 #include <raylib.h>
 #include <fstream>
 #include <game.h>
-
+#include <entities/entity_base.h>
 
 CLevelHandler g_LevelHandler;
 
@@ -23,8 +23,10 @@ bool CLevelHandler::ReadLevel(const char *filename)
     unsigned long long curvert = 0;
     bool found_numsectors = false;
     bool found_numvertices = false;
+    bool found_numentities = false;
 
     unsigned long long currentgamesector = 0;
+    int curentity = 0;
 
     while(std::getline(file, line))
     {
@@ -128,6 +130,32 @@ bool CLevelHandler::ReadLevel(const char *filename)
                     g_Game.GetSector(cursector)->m_IsFloorSlope = true;
                 }
             }
+
+            if(!found_numentities) //cant do anything without knowing sector number
+            {
+                if(strstr(line.c_str(), "NUMENTITIES"))
+                {
+                    sscanf(line.c_str(), "NUMENTITIES %d", &g_Game.m_NumEntities);
+                    g_Game.m_pEntities = new IEntity*[g_Game.m_NumEntities];
+                    for(int i = 0; i < g_Game.m_NumEntities; i++)
+                    {
+                        g_Game.m_pEntities[i] = nullptr;
+                    }
+                    found_numentities = true;
+                }
+            }
+            else
+            {
+                if(curentity < g_Game.m_NumEntities && strstr(line.c_str(), "ENTITY_DATA"))
+                {
+                    unsigned int id = 0;
+                    Vector3 Pos;
+                    int secid = 0;
+                    sscanf(line.c_str(), "ENTITY_DATA %u %f %f %f %d", &id, &Pos.x, &Pos.y, &Pos.z, &secid);
+                    g_Game.m_pEntities[curentity] = g_EntityCreatorList.at(id)(Pos, g_Game.GetSector(secid));
+                    curentity++;
+                }
+            }
         }
     }
 
@@ -183,6 +211,18 @@ bool CLevelHandler::SaveLevel(const char *filename)
             }
             file << "WALL_TEXTURE " << pSector->m_pTexturesIDs[vertid] << std::endl;
         }
+    }
+
+    file << "NUMENTITIES " << g_Game.m_NumEntities << std::endl;
+
+    for(int entid = 0; entid < g_Game.m_NumEntities; entid++)
+    {
+        if(!g_Game.m_pEntities[entid])
+            continue;
+        file << "ENTITY_DATA " << g_Game.m_pEntities[entid]->GetEntityID()
+        << " " << g_Game.m_pEntities[entid]->m_Pos.x << " " << g_Game.m_pEntities[entid]->m_Pos.y
+        << " " << g_Game.m_pEntities[entid]->m_Pos.z << " " << g_Game.m_pEntities[entid]->GetSectorID();
+
     }
 
     file.close();

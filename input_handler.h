@@ -14,6 +14,7 @@ struct SInput
     bool m_Jump = false;
     float m_Angle = 0.f;
     bool m_MouseClick = false;
+    bool m_MouseRightClick = false;
     Vector2 m_MousePos = {0,0};
     bool m_Enter = false;
     bool m_BackSpace = false;
@@ -29,6 +30,7 @@ struct SInput
     bool m_EditorLoadLevelKey = false;
     bool m_EditorCeilingSlopeKey = false;
     bool m_EditorFloorSlopeKey = false;
+    bool m_EditorPlaceEntityKey = false;
 };
 
 class CInputHandler

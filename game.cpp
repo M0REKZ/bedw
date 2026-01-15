@@ -361,6 +361,19 @@ void CGame::RenderSectors2D(CSector *pSelectedSector)
     EndMode2D();
 }
 
+void CGame::RenderEntities2D()
+{
+    BeginMode2D(g_Globals.m_RaylibCamera2D);
+    for(int i = 0; i < m_NumEntities; i++)
+    {
+        if(!m_pEntities[i])
+            continue;
+
+        DrawCircle(m_pEntities[i]->m_Pos.x, m_pEntities[i]->m_Pos.z, 5.f, {0,255,0,255});
+    }
+    EndMode2D();
+}
+
 void CGame::RenderEditorInfo()
 {
     BeginMode2D(g_Globals.m_RaylibCamera2D);
@@ -383,6 +396,10 @@ void CGame::RenderEditorInfo()
     else if(m_EditorState == EDITORSTATE_EDITING_SECTOR)
     {
         snprintf(tempchar, sizeof(tempchar), "Remaking Sector: %llu\n", sectorid);
+    }
+    else if(m_EditorState == EDITORSTATE_PLACING_ENTITY)
+    {
+        snprintf(tempchar, sizeof(tempchar), "Selected Entity: %u\n", m_EditorSelectedEntity);
     }
     else
     {
@@ -469,9 +486,37 @@ void CGame::UpdateEditorInput()
                 }
             }
         }
+        else if(pInput->m_MouseRightClick)
+        {
+            if(!waiting_for_click_release)
+            {
+                waiting_for_click_release = true;
+
+                float x = pInput->m_MousePos.x + g_Globals.m_RaylibCamera2D.target.x;
+                float y = pInput->m_MousePos.y + g_Globals.m_RaylibCamera2D.target.y;
+
+                for(int i = 0; i < m_NumEntities; i++)
+                {
+                    if(!m_pEntities[i])
+                        continue;
+
+                    if(PointDistance({m_pEntities[i]->m_Pos.x, m_pEntities[i]->m_Pos.z}, {x,y}) < 5.f)
+                    {
+                        delete m_pEntities[i];
+                        m_pEntities[i] = nullptr;
+                    }
+                }
+            }
+        }
         else
         {
             waiting_for_click_release = false;
+        }
+
+        if(pInput->m_EditorPlaceEntityKey)
+        {
+            m_EditorState = EDITORSTATE_PLACING_ENTITY;
+            m_EditorSelectedEntity = 0;
         }
 
         if(pInput->m_Jump)
@@ -875,7 +920,7 @@ void CGame::UpdateEditorInput()
                 m_pCurrentSector->m_CeilingSlopeAltitude--;
             }
         }
-        if(pInput->m_ArrowLeft)
+        else if(pInput->m_ArrowLeft)
         {
             if(!waiting_for_key_release)
             {
@@ -929,7 +974,7 @@ void CGame::UpdateEditorInput()
                 m_pCurrentSector->m_FloorSlopeAltitude--;
             }
         }
-        if(pInput->m_ArrowLeft)
+        else if(pInput->m_ArrowLeft)
         {
             if(!waiting_for_key_release)
             {
@@ -962,6 +1007,57 @@ void CGame::UpdateEditorInput()
             waiting_for_key_release = false;
         }
     }
+    else if(m_EditorState == EDITORSTATE_PLACING_ENTITY)
+    {
+        static bool waiting_for_key_release = false;
+        if(pInput->m_ArrowLeft)
+        {
+            if(!waiting_for_key_release)
+            {
+                if(m_EditorSelectedEntity > 0)
+                    m_EditorSelectedEntity--;
+                waiting_for_key_release = true;
+            }
+        }
+        else if(pInput->m_ArrowRight)
+        {
+            if(!waiting_for_key_release)
+            {
+                if(m_EditorSelectedEntity < g_EntityCreatorList.size())
+                    m_EditorSelectedEntity++;
+                waiting_for_key_release = true;
+            }
+        }
+        else if(pInput->m_MouseClick)
+        {
+            if(!waiting_for_key_release && g_EntityCreatorList.count(m_EditorSelectedEntity))
+            {
+                IEntity ** pTemp = new IEntity*[m_NumEntities + 1];
+
+                for(int i = 0; i < m_NumEntities; i++)
+                {
+                    pTemp[i] = m_pEntities[i];
+                }
+
+                delete[] m_pEntities;
+                m_pEntities = pTemp;
+
+                m_NumEntities++;
+
+                float x = pInput->m_MousePos.x + g_Globals.m_RaylibCamera2D.target.x;
+                float y = pInput->m_MousePos.y + g_Globals.m_RaylibCamera2D.target.y;
+
+                m_pEntities[m_NumEntities - 1] = g_EntityCreatorList.at(m_EditorSelectedEntity)({x, m_pCurrentSector->m_Floor, y}, m_pCurrentSector);
+
+                m_EditorState = EDITORSTATE_NONE;
+                waiting_for_key_release = true;
+            }
+        }
+        else
+        {
+            waiting_for_key_release = false;
+        }
+    }
 }
 
 bool CGame::InitTextures()
@@ -981,6 +1077,8 @@ bool CGame::InitTextures()
 
 bool CGame::Init()
 {
+    InitEntityCreatorList();
+
     if(!m_EditorMode)
     {
         g_LevelHandler.ReadLevel("TESTLEVEL.txt");
@@ -1023,9 +1121,6 @@ bool CGame::Init()
 
         m_pCurrentSector = &m_pSectors[0];
     }
-    m_NumEntities = 1;
-    m_pEntities = new IEntity*[m_NumEntities];
-    m_pEntities[0] = new CPlayer({0,1,0});
     return InitTextures();
 }
 
@@ -1096,6 +1191,7 @@ void CGame::Render()
     {
         RenderGrid();
         RenderSectors2D(m_pCurrentSector);
+        RenderEntities2D();
         RenderEditorInfo();
         return;
     }
