@@ -1,3 +1,4 @@
+// Copyright (c) Benjamín Gajardo (also known as +KZ)
 
 #include "player.h"
 
