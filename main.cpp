@@ -21,7 +21,9 @@ int main(int argc, char** argv)
         }
     }
 
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(GAME_WIDTH, GAME_HEIGHT, "Brain Evil: Dark World");
+    SetWindowMinSize(GAME_WIDTH, GAME_HEIGHT);
     SetExitKey(KEY_NULL);
 
     SetTargetFPS(60);
@@ -41,6 +43,12 @@ int main(int argc, char** argv)
     g_Globals.m_RaylibCamera2D.zoom = 1;
     while(!exit)
     {
+        if(IsWindowResized())
+        {
+            g_Globals.m_CurrentWindowWidth = GetScreenWidth();
+            g_Globals.m_CurrentWindowHeight = GetScreenHeight();
+        }
+
         g_InputHandler.UpdateInput();
 
         g_Game.Update();

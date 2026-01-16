@@ -86,13 +86,13 @@ float GetSlopeAltitude(Vector2 Point1, Vector2 Point2, Vector2 HighestPoint, flo
     return Multiplier * PointDistance(ClosestPoint, CheckingPoint);
 }
 
-void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector)
+void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector, bool * pGroundedState)
 {
     CSector *pPrevSector = nullptr;
     CSector *pNextSector = nullptr;
     CSector *pCurrentSector = ppInOutSector ? *ppInOutSector : g_Game.GetCurrentSector();
 
-    DoFloorCollision(Pos, InOutVel,Radius, pCurrentSector);    
+    DoFloorCollision(Pos, InOutVel,Radius, pCurrentSector, pGroundedState);    
     DoCeilingCollision(Pos, InOutVel, Radius, pCurrentSector);
 
     do
@@ -141,7 +141,7 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
                         {
                             if(Pos.y > pSector->m_Floor)
                             {
-                                DoFloorCollision(Pos, InOutVel, Radius, pSector);
+                                DoFloorCollision(Pos, InOutVel, Radius, pSector, pGroundedState);
                             }
                             else if(Pos.y < pSector->m_Ceiling)
                             {
@@ -268,12 +268,16 @@ void DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *p
     }
 }
 
-void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector)
+void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector, bool * pGroundedState)
 {
+    bool grounded = false;
     if(!pSector->m_IsFloorSlope)
     {
         if((Pos.y - Radius) + InOutVel.y < pSector->m_Floor)
+        {
             InOutVel.y = pSector->m_Floor - (Pos.y - Radius);
+            grounded = true;
+        }
     }
     else if(pSector->m_NumVertices == 3)
     {
@@ -294,6 +298,12 @@ void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSe
             pSector->m_pVertices[pSector->m_FloorSlopeVert], pSector->m_FloorSlopeAltitude - pSector->m_Floor, {Pos.x, Pos.z});
         altitude += pSector->m_Floor;
         if((Pos.y - Radius) + InOutVel.y < altitude)
+        {
             InOutVel.y = altitude - (Pos.y - Radius);
+            grounded = true;
+        }
     }
+
+    if(pGroundedState)
+        *pGroundedState = grounded;
 }

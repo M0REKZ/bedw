@@ -426,14 +426,14 @@ void CGame::RenderEditorInfo()
 void CGame::RenderGrid()
 {
     //vertical lines
-    for(int x = ((int)g_Globals.m_RaylibCamera2D.target.x % 10); x < GAME_WIDTH; x+=10)
+    for(int x = ((int)g_Globals.m_RaylibCamera2D.target.x % 10); x < g_Globals.m_CurrentWindowWidth; x+=10)
     {
-        DrawLine(x,0,x,GAME_HEIGHT,{128,128,128,255});
+        DrawLine(x,0,x,g_Globals.m_CurrentWindowHeight,{128,128,128,255});
     }
 
-    for(int y = ((int)g_Globals.m_RaylibCamera2D.target.y % 10); y < GAME_WIDTH; y+=10)
+    for(int y = ((int)g_Globals.m_RaylibCamera2D.target.y % 10); y < g_Globals.m_CurrentWindowHeight; y+=10)
     {
-        DrawLine(0,y,GAME_WIDTH,y,{128,128,128,255});
+        DrawLine(0,y,g_Globals.m_CurrentWindowWidth,y,{128,128,128,255});
     }
 }
 

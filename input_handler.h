@@ -13,6 +13,7 @@ struct SInput
     bool m_Right = false;
     bool m_Jump = false;
     float m_Angle = 0.f;
+    float m_AngleY = 0.f;
     bool m_MouseClick = false;
     bool m_MouseRightClick = false;
     Vector2 m_MousePos = {0,0};

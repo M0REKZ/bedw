@@ -15,8 +15,8 @@ float GetSlopeAltitude(Vector2 Point1, Vector2 Point2, Vector2 HighestPoint, flo
 bool IsPointInsideTriangle(Vector2 p, Vector2 p0, Vector2 p1, Vector2 p2);
 bool IsPointInsideSector(CSector * pSector, Vector2 Point);
 
-void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector = nullptr);
+void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector = nullptr, bool * pGroundedState = nullptr);
 void DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector);
-void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector);
+void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector, bool * pGroundedState = nullptr);
 
 #endif

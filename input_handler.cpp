@@ -2,6 +2,8 @@
 
 #include "input_handler.h"
 #include <raylib.h>
+#include <cmath>
+#include <cstdio>
 
 CInputHandler g_InputHandler;
 
@@ -72,7 +74,28 @@ void CInputHandler::UpdateInput()
         m_Inputs.m_ArrowRight = false;
     }
 
+    Vector2 PrevMousePos = m_Inputs.m_MousePos;
     m_Inputs.m_MousePos = GetMousePosition();
+
+    if((PrevMousePos.x != m_Inputs.m_MousePos.x || PrevMousePos.y != m_Inputs.m_MousePos.y) &&
+        PrevMousePos.x != 0.f && PrevMousePos.y != 0.f)
+    {
+        float dx = m_Inputs.m_MousePos.x - PrevMousePos.x;
+        float dy = m_Inputs.m_MousePos.y - PrevMousePos.y;
+
+        m_Inputs.m_Angle += dx * (M_PI/180);
+        m_Inputs.m_AngleY += dy * (M_PI/180);
+
+        if (m_Inputs.m_Angle > M_PI * 2)
+            m_Inputs.m_Angle -= M_PI * 2;
+        else if (m_Inputs.m_Angle < 0)
+            m_Inputs.m_Angle += M_PI * 2;
+
+        if (m_Inputs.m_AngleY > M_PI)
+            m_Inputs.m_AngleY = M_PI;
+        else if (m_Inputs.m_AngleY < 0)
+            m_Inputs.m_AngleY = 0;
+    }
 
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT))
     {

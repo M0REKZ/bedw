@@ -17,6 +17,7 @@ ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 CPlayer::CPlayer(Vector3 Pos)
 {
     m_Pos = Pos;
+    m_Vel = {0,0,0};
     g_Game.SetNeededTexture(4); // chydia image
 }
 
@@ -26,46 +27,66 @@ void CPlayer::Update()
 
     Vector3 OldPos = m_Pos;
 
-    m_Angle = pInput->m_Angle;
+    m_WantedVel = {0,0,0};
 
-    m_Vel = {0,0,0};
+    bool walk = false;
+
+    m_Angle = pInput->m_Angle;
 
     if(pInput->m_Front)
     {
-        m_Vel.x = cosf(m_Angle);
-        m_Vel.z = sinf(m_Angle);
+        if(pInput->m_Right)
+            m_Angle += M_PI_4;
+        else if(pInput->m_Left)
+            m_Angle -= M_PI_4;
+        walk = true;
     }
     else if(pInput->m_Back)
     {
-        m_Vel.x = -cosf(m_Angle);
-        m_Vel.z = -sinf(m_Angle);
+        m_Angle = pInput->m_Angle + M_PI;
+        if(pInput->m_Right)
+            m_Angle -= M_PI_4;
+        else if(pInput->m_Left)
+            m_Angle += M_PI_4;
+        walk = true;
     }
-
-    if(pInput->m_Right)
+    else if(pInput->m_Right)
     {
-        m_Vel.x = cosf(m_Angle + M_PI_2);
-        m_Vel.z = sinf(m_Angle + M_PI_2);
+        m_Angle = pInput->m_Angle + M_PI_2;
+        walk = true;
     }
     else if(pInput->m_Left)
     {
-        m_Vel.x = -cosf(m_Angle + M_PI_2);
-        m_Vel.z = -sinf(m_Angle + M_PI_2);
+        m_Angle = pInput->m_Angle - M_PI_2;
+        walk = true;
     }
 
-    if(pInput->m_Jump)
+    printf("%f %f\n",m_Angle,pInput->m_Angle);
+
+    if(walk)
     {
-        m_Vel.y = .1f;
+        m_WantedVel.x = cosf(m_Angle);
+        m_WantedVel.z = sinf(m_Angle);
     }
-    else
+
+    if(m_Grounded && pInput->m_Jump)
     {
-        m_Vel.y = -.1f;
+        m_Vel.y = 1.f;
     }
+
+    m_Vel.x *= 0.9f;
+    if(std::abs(m_Vel.x) < std::abs(m_WantedVel.x))
+        m_Vel.x += (m_WantedVel.x > 0.f ? 0.1f : -0.1f) * std::abs(cosf(m_Angle));
+    m_Vel.z *= 0.9f;
+    if(std::abs(m_Vel.z) < std::abs(m_WantedVel.z))
+        m_Vel.z += (m_WantedVel.z > 0.f ? 0.1f : -0.1f) * std::abs(sinf(m_Angle));
+    m_Vel.y += -0.05;
 
     
     CSector *pCurrentSector = g_Game.GetCurrentSector();
 
     //Player collision
-    DoMovement(m_Pos, m_Vel, m_Radius, &pCurrentSector);
+    DoMovement(m_Pos, m_Vel, m_Radius, &pCurrentSector, &m_Grounded);
 
     g_Game.SetCurrentSector(pCurrentSector);
 
@@ -78,9 +99,9 @@ void CPlayer::Update()
 
     Vector3 CameraOffset;
 
-    CameraOffset.x = -cosf(m_Angle) * 16;
-    CameraOffset.y = 2.f;
-    CameraOffset.z = -sinf(m_Angle) * 16;
+    CameraOffset.x = -cosf(pInput->m_Angle) * 16;
+    CameraOffset.y = cosf(pInput->m_AngleY) * 16;
+    CameraOffset.z = -sinf(pInput->m_Angle) * 16;
 
     //Camera collision
     DoMovement(m_Pos, CameraOffset, 0.9f);
