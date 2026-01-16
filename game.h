@@ -4,10 +4,9 @@
 #define GAME_H
 
 #include <vector>
+#include <map>
 
 class IEntity;
-
-#define MAX_TEXTURES 10
 
 class CSector
 {
@@ -41,8 +40,6 @@ class CGame
 
     CSector * m_pCurrentSector = nullptr;
 
-    Texture2D m_Textures[MAX_TEXTURES];
-
     void ValidateActiveSectors(CSector * pCurrentSector, int recursionamount = 15);
     void RenderSectors();
 
@@ -57,6 +54,11 @@ class CGame
     bool InitTextures();
 
     public:
+
+    void SetNeededTexture(unsigned int id);
+
+    std::vector<unsigned int> m_NeededTextures;
+    std::unordered_map<unsigned int, Texture2D> m_Textures;
 
     //editor
     bool m_EditorMode = false;

@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <input_handler.h>
 #include <level_handler.h>
+#include <algorithm>
 
 CGame g_Game;
 
@@ -1062,17 +1063,38 @@ void CGame::UpdateEditorInput()
 
 bool CGame::InitTextures()
 {
-    char filename[256] = {0};
-    for(int i = 0; i < MAX_TEXTURES; i++)
+
+    //count sector textures
+    for(int secid = 0; secid < m_NumSectors; secid++)
     {
-        snprintf(filename, sizeof(filename), "data/images/%d.png", i);
+        SetNeededTexture(m_pSectors[secid].m_FloorTextureID);
+        SetNeededTexture(m_pSectors[secid].m_CeilingTextureID);
+
+        for(int vertid = 0; vertid < m_pSectors[secid].m_NumVertices; vertid++)
+        {
+            SetNeededTexture(m_pSectors[secid].m_pTexturesIDs[vertid]);
+        }
+    }
+
+    char filename[256] = {0};
+    for(auto id : m_NeededTextures)
+    {
+        snprintf(filename, sizeof(filename), "data/images/%d.png", id);
         if(FileExists(filename))
         {
-            m_Textures[i] = LoadTexture(filename);
+            m_Textures[id] = LoadTexture(filename);
         }
     }
 
     return true;
+}
+
+void CGame::SetNeededTexture(unsigned int id)
+{
+    if(std::find(m_NeededTextures.begin(), m_NeededTextures.end(), id) == m_NeededTextures.end())
+    {
+        m_NeededTextures.push_back(id);
+    }
 }
 
 bool CGame::Init()
@@ -1154,6 +1176,11 @@ void CGame::Destroy()
         delete[] m_pSectors;
         m_pSectors = nullptr;
     }
+
+    for (auto &texture : m_Textures)
+    {
+        UnloadTexture(texture.second);
+    } 
 }
 
 void CGame::Update()

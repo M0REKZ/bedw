@@ -17,6 +17,7 @@ ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 CPlayer::CPlayer(Vector3 Pos)
 {
     m_Pos = Pos;
+    g_Game.SetNeededTexture(4); // chydia image
 }
 
 void CPlayer::Update()
@@ -92,7 +93,7 @@ void CPlayer::Update()
 void CPlayer::Render()
 {
     BeginMode3D(g_Globals.m_RaylibCamera);
-    DrawSphere(m_Pos, m_Radius, {0,255,0,255});
+    DrawBillboard(g_Globals.m_RaylibCamera, g_Game.m_Textures[4], m_Pos, m_Radius*2, {255,255,255,255});
     EndMode3D();
 }
 
