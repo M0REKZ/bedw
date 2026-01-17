@@ -24,6 +24,10 @@ class CGlobals
 
     int m_CurrentWindowWidth = GAME_WIDTH;
     int m_CurrentWindowHeight = GAME_HEIGHT;
+
+    Shader m_TransparentBillboardShader;
+
+    void Init();
 };
 
 extern CGlobals g_Globals;

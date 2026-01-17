@@ -32,15 +32,8 @@ int main(int argc, char** argv)
         return -1;
 
     bool exit = false;
-    g_Globals.m_RaylibCamera.up = {0.f, 1.f, 0.f};
-    g_Globals.m_RaylibCamera.fovy = 45.f;
-    g_Globals.m_RaylibCamera.projection = CAMERA_PERSPECTIVE;
-
-    //screen drawing
-    g_Globals.m_RaylibCamera2D.offset = {0,0};
-    g_Globals.m_RaylibCamera2D.target = {0,0};
-    g_Globals.m_RaylibCamera2D.rotation = 0;
-    g_Globals.m_RaylibCamera2D.zoom = 1;
+    
+    g_Globals.Init();
     while(!exit)
     {
         if(IsWindowResized())

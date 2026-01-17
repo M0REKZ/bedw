@@ -139,6 +139,7 @@ void CKillerBot::Render()
     }
 
     BeginMode3D(g_Globals.m_RaylibCamera);
+    BeginShaderMode(g_Globals.m_TransparentBillboardShader);
     if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[11], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
     else if(m_Frame == 4)
@@ -149,6 +150,7 @@ void CKillerBot::Render()
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[14], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
     else if(m_Frame == 2)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[15], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
+    EndShaderMode();
     EndMode3D();
 }
 

@@ -31,8 +31,6 @@ CPlayer::CPlayer(Vector3 Pos)
 
 void CPlayer::Update()
 {
-    printf("halt %d\n",m_Health);
-
     if(m_Health <=0)
     {
         return;
@@ -186,6 +184,7 @@ void CPlayer::Render()
     }
 
     BeginMode3D(g_Globals.m_RaylibCamera);
+    BeginShaderMode(g_Globals.m_TransparentBillboardShader);
     if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[4], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
     else if(m_Frame == 1)
@@ -200,6 +199,7 @@ void CPlayer::Render()
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[9], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
     else if(m_Frame == 8)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[10], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
+    EndShaderMode();
     EndMode3D();
 }
 
