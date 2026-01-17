@@ -14,6 +14,7 @@ class IEntity
     Vector3 m_Pos;
     Vector3 m_Vel;
     float m_Radius = 1.f;
+    int m_Health = 0;
 
     virtual void Update() {};
     virtual void Render() {};

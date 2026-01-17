@@ -16,6 +16,7 @@ ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 
 CPlayer::CPlayer(Vector3 Pos)
 {
+    m_Health = 100;
     m_Pos = Pos;
     m_Pos.y += m_Radius;
     m_Vel = {0,0,0};
@@ -30,6 +31,13 @@ CPlayer::CPlayer(Vector3 Pos)
 
 void CPlayer::Update()
 {
+    printf("halt %d\n",m_Health);
+
+    if(m_Health <=0)
+    {
+        return;
+    }
+
     const SInput * pInput = g_InputHandler.GetInputs();
 
     Vector3 OldPos = m_Pos;

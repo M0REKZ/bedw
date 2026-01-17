@@ -91,10 +91,10 @@ void CInputHandler::UpdateInput()
         else if (m_Inputs.m_Angle < 0)
             m_Inputs.m_Angle += M_PI * 2;
 
-        if (m_Inputs.m_AngleY > M_PI)
-            m_Inputs.m_AngleY = M_PI;
-        else if (m_Inputs.m_AngleY < 0)
-            m_Inputs.m_AngleY = 0;
+        if (m_Inputs.m_AngleY > M_PI - 1)
+            m_Inputs.m_AngleY = M_PI - 1;
+        else if (m_Inputs.m_AngleY < 1)
+            m_Inputs.m_AngleY = 1;
     }
 
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT))

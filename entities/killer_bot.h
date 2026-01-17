@@ -14,6 +14,9 @@ class CKillerBot : public IEntity
 
     float m_Angle = 0.f;
     bool m_Grounded = false;
+    bool m_Attack = false;
+    int m_AttackDelay = 0;
+    int m_AttackFrame = 0;
 
     CSector * m_pMySector = nullptr;
 
