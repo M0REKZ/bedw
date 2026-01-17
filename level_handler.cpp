@@ -221,7 +221,8 @@ bool CLevelHandler::SaveLevel(const char *filename)
             continue;
         file << "ENTITY_DATA " << g_Game.m_pEntities[entid]->GetEntityID()
         << " " << g_Game.m_pEntities[entid]->m_Pos.x << " " << g_Game.m_pEntities[entid]->m_Pos.y
-        << " " << g_Game.m_pEntities[entid]->m_Pos.z << " " << g_Game.m_pEntities[entid]->GetSectorID();
+        << " " << g_Game.m_pEntities[entid]->m_Pos.z << " " << g_Game.m_pEntities[entid]->GetSectorID()
+        << std::endl;
 
     }
 

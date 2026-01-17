@@ -1,26 +1,28 @@
 // Copyright (c) Benjamín Gajardo (also known as +KZ)
 
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef KILLERBOT_H
+#define KILLERBOT_H
 
 #include "entity_base.h"
 
-class CPlayer : public IEntity
+class CKillerBot : public IEntity
 {
     public:
 
-    static ENTITY_ID(0);
-    static ENTITY_CREATOR_FUNC(PlayerCreator);
+    static ENTITY_ID(1);
+    static ENTITY_CREATOR_FUNC(KillerBotCreator);
 
     float m_Angle = 0.f;
     bool m_Grounded = false;
-    bool m_LookingLeft = false;
+
+    CSector * m_pMySector = nullptr;
+
     int m_Frame = 0;
     int m_FrameTime = 0;
 
     Vector3 m_WantedVel = {0.f,0.f};
 
-    CPlayer(Vector3 Pos);
+    CKillerBot(Vector3 Pos, CSector * pSector);
 
     virtual void Update() override;
     virtual void Render() override;

@@ -13,10 +13,12 @@ class IEntity
     
     Vector3 m_Pos;
     Vector3 m_Vel;
+    float m_Radius = 1.f;
 
     virtual void Update() {};
     virtual void Render() {};
     virtual int GetSectorID() { return 0; }
+    virtual void SetSectorID(int id) {}
     virtual unsigned int GetEntityID() { return 0; }
 };
 

@@ -79,8 +79,8 @@ void CPlayer::Update()
 
     if(walk)
     {
-        m_WantedVel.x = cosf(m_Angle);
-        m_WantedVel.z = sinf(m_Angle);
+        m_WantedVel.x = cosf(m_Angle)/2;
+        m_WantedVel.z = sinf(m_Angle)/2;
     }
 
     if(m_Grounded && pInput->m_Jump)
@@ -198,4 +198,9 @@ void CPlayer::Render()
 int CPlayer::GetSectorID()
 {
     return g_Game.SectorPointerToID(g_Game.GetCurrentSector());
+}
+
+void CPlayer::SetSectorID(int id)
+{
+    g_Game.SetCurrentSector(g_Game.GetSector(id));
 }

@@ -141,7 +141,7 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
                         {
                             if(Pos.y > pSector->m_Floor)
                             {
-                                DoFloorCollision(Pos, InOutVel, Radius, pSector, pGroundedState);
+                                DoFloorCollision(Pos, InOutVel, Radius, pSector, (pGroundedState && *pGroundedState) ? nullptr : pGroundedState);
                             }
                             else if(Pos.y < pSector->m_Ceiling)
                             {

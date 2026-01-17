@@ -672,8 +672,28 @@ void CGame::UpdateEditorInput()
                             pTempSec[i].m_pNeighbors[j] = nullptr;
                     }
                 }
+
+                //update entities
+                int m_SecEnt[m_NumEntities];
+                for(int i = 0; i < m_NumEntities; i++)
+                {
+                    if(m_pEntities[i])
+                    {
+                        m_SecEnt[i] = m_pEntities[i]->GetSectorID();
+                    }
+                }
+
                 delete[] m_pSectors; //just delete the old array, but not the data
                 m_pSectors = pTempSec;
+
+                //update entities
+                for(int i = 0; i < m_NumEntities; i++)
+                {
+                    if(m_pEntities[i])
+                    {
+                        m_pEntities[i]->SetSectorID(m_SecEnt[i]);
+                    }
+                }
 
                 //add new sector
                 m_NumSectors++;
