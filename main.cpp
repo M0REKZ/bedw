@@ -23,6 +23,7 @@ int main(int argc, char** argv)
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(GAME_WIDTH, GAME_HEIGHT, "Brain Evil: Dark World");
+    InitAudioDevice();
     SetWindowMinSize(GAME_WIDTH, GAME_HEIGHT);
     SetExitKey(KEY_NULL);
 
@@ -58,6 +59,7 @@ int main(int argc, char** argv)
             exit = true;
     }
 
+    CloseAudioDevice();
     CloseWindow();
 
     return 0;

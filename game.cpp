@@ -1106,6 +1106,22 @@ bool CGame::InitTextures()
         }
     }
 
+    for(auto id : m_NeededSounds)
+    {
+        snprintf(filename, sizeof(filename), "data/sounds/%d.mp3", id);
+        if(FileExists(filename))
+        {
+            m_Sounds[id] = LoadSound(filename);
+            continue;
+        }
+        snprintf(filename, sizeof(filename), "data/sounds/%d.wav", id);
+        if(FileExists(filename))
+        {
+            m_Sounds[id] = LoadSound(filename);
+            continue;
+        }
+    }
+
     return true;
 }
 
@@ -1114,6 +1130,14 @@ void CGame::SetNeededTexture(unsigned int id)
     if(std::find(m_NeededTextures.begin(), m_NeededTextures.end(), id) == m_NeededTextures.end())
     {
         m_NeededTextures.push_back(id);
+    }
+}
+
+void CGame::SetNeededSound(unsigned int id)
+{
+    if(std::find(m_NeededSounds.begin(), m_NeededSounds.end(), id) == m_NeededSounds.end())
+    {
+        m_NeededSounds.push_back(id);
     }
 }
 

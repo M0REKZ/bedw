@@ -14,9 +14,45 @@ ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
     return new CPlayer(Pos);
 }
 
+void CPlayer::DoAttack()
+{
+    IEntity * pClosestTarget = nullptr;
+    IEntity * pEntity = nullptr;
+    float closestdistance = 9999.f;
+    for(int i = 0; i < g_Game.NumEntities(); i++)
+    {
+        if((pEntity = g_Game.GetEntity(i)))
+        {
+            if(pEntity->m_Type == EntType::ENTTYPE_ENEMY)
+            {
+                float distance = PointDistance3D(pEntity->m_Pos, m_Pos);
+
+                if(distance < closestdistance)
+                {
+                    closestdistance = distance;
+                    pClosestTarget = pEntity;
+                }
+            }
+        }
+    }
+
+    if(pClosestTarget)
+    {
+        if(closestdistance < 2.f)
+        {
+            pClosestTarget->m_Health--;
+        }
+    }
+
+    PlaySound(g_Game.m_Sounds[3]);
+    m_AttackDelay = 20;
+    m_Frame = 10;
+}
+
 CPlayer::CPlayer(Vector3 Pos)
 {
-    m_Health = 100;
+    m_Type = EntType::ENTTYPE_PLAYER;
+    m_PrevHealth = m_Health = 100;
     m_Pos = Pos;
     m_Pos.y += m_Radius;
     m_Vel = {0,0,0};
@@ -27,13 +63,33 @@ CPlayer::CPlayer(Vector3 Pos)
     g_Game.SetNeededTexture(8); // also walk
     g_Game.SetNeededTexture(9); // fall
     g_Game.SetNeededTexture(10); // jump
+    g_Game.SetNeededTexture(16); // hurt
+    g_Game.SetNeededTexture(17); // attack
+
+    g_Game.SetNeededSound(1); // hurt
+    g_Game.SetNeededSound(3); // hit miss
+    g_Game.SetNeededSound(6); // jump
+    g_Game.SetNeededSound(7); // walk
 }
 
 void CPlayer::Update()
 {
+    if(m_PrevHealth > m_Health)
+    {
+        m_Frame = 9;
+        m_PrevHealth = m_Health;
+        StopSound(g_Game.m_Sounds[1]);
+        PlaySound(g_Game.m_Sounds[1]);
+    }
+
     if(m_Health <=0)
     {
         return;
+    }
+
+    if(m_AttackDelay > 0)
+    {
+        m_AttackDelay--;
     }
 
     const SInput * pInput = g_InputHandler.GetInputs();
@@ -92,6 +148,12 @@ void CPlayer::Update()
     if(m_Grounded && pInput->m_Jump)
     {
         m_Vel.y = 1.f;
+        PlaySound(g_Game.m_Sounds[6]);
+    }
+
+    if(m_AttackDelay <= 0 && pInput->m_MouseClick)
+    {
+        DoAttack();
     }
 
     m_Vel.x *= 0.9f;
@@ -134,11 +196,47 @@ void CPlayer::Update()
     g_Globals.m_Camera.m_Pos.x = m_Pos.x + CameraOffset.x;
     g_Globals.m_Camera.m_Pos.y = m_Pos.y + CameraOffset.y;
     g_Globals.m_Camera.m_Pos.z = m_Pos.z + CameraOffset.z;
+
+    if(m_Grounded && (std::abs(m_Vel.x) > 0.001f || std::abs(m_Vel.z) > 0.001f))
+    {
+        m_Walking--;
+        if(m_Walking <= 0)
+        {
+            StopSound(g_Game.m_Sounds[7]);
+            PlaySound(g_Game.m_Sounds[7]);
+            if(std::abs(m_Vel.x) < 0.4f && std::abs(m_Vel.z) < 0.4f)
+            {
+                m_Walking = 20;
+            }
+            else
+            {
+                m_Walking = 10;
+            }
+        }
+
+        if(m_Walking > 10 && (std::abs(m_Vel.x) >= 0.4f || std::abs(m_Vel.z) >= 0.4f))
+        {
+            m_Walking = 9;
+        }
+    }
+    else
+    {
+        m_Walking = 0;
+    }
 }
 
 void CPlayer::Render()
 {
-    if(!m_Grounded)
+    if(m_Frame == 9 || m_Frame == 10)
+    {
+        m_FrameTime++;
+        if(m_FrameTime >= 10)
+        {
+            m_FrameTime = 0;
+            m_Frame = 0;
+        }
+    }
+    else if(!m_Grounded)
     {
         if(m_Vel.y < 0.f)
         {
@@ -185,7 +283,9 @@ void CPlayer::Render()
 
     BeginMode3D(g_Globals.m_RaylibCamera);
     BeginShaderMode(g_Globals.m_TransparentBillboardShader);
-    if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
+    if(m_Health <= 0)
+    { /* TODO: need dead sprite */ }
+    else if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[4], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
     else if(m_Frame == 1)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[5], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
@@ -199,6 +299,10 @@ void CPlayer::Render()
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[9], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
     else if(m_Frame == 8)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[10], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
+    else if(m_Frame == 9)
+        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[16], {0,0,m_LookingLeft ? -25.f : 25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+    else if(m_Frame == 10)
+        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[17], {0,0,m_LookingLeft ? -25.f : 25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
     EndShaderMode();
     EndMode3D();
 }

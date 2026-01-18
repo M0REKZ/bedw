@@ -17,6 +17,8 @@ class CKillerBot : public IEntity
     bool m_Attack = false;
     int m_AttackDelay = 0;
     int m_AttackFrame = 0;
+    int m_PrevHealth;
+    bool m_PlayedDeathSound = false;
 
     CSector * m_pMySector = nullptr;
 

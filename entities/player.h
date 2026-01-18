@@ -7,6 +7,8 @@
 
 class CPlayer : public IEntity
 {
+    void DoAttack();
+
     public:
 
     static ENTITY_ID(0);
@@ -17,6 +19,11 @@ class CPlayer : public IEntity
     bool m_LookingLeft = false;
     int m_Frame = 0;
     int m_FrameTime = 0;
+
+    int m_PrevHealth;
+    int m_AttackDelay = 0;
+
+    int m_Walking = 0;
 
     Vector3 m_WantedVel = {0.f,0.f};
 

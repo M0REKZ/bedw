@@ -10,11 +10,19 @@
 class IEntity
 {
     public:
+
+    enum EntType
+    {
+        ENTTYPE_NONE,
+        ENTTYPE_PLAYER,
+        ENTTYPE_ENEMY,
+    };
     
     Vector3 m_Pos;
     Vector3 m_Vel;
     float m_Radius = 1.f;
     int m_Health = 0;
+    enum EntType m_Type = ENTTYPE_NONE;
 
     virtual void Update() {};
     virtual void Render() {};

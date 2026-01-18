@@ -56,9 +56,12 @@ class CGame
     public:
 
     void SetNeededTexture(unsigned int id);
+    void SetNeededSound(unsigned int id);
 
     std::vector<unsigned int> m_NeededTextures;
     std::unordered_map<unsigned int, Texture2D> m_Textures;
+    std::vector<unsigned int> m_NeededSounds;
+    std::unordered_map<unsigned int, Sound> m_Sounds;
 
     //editor
     bool m_EditorMode = false;

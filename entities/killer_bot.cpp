@@ -10,10 +10,11 @@ ENTITY_CREATOR_FUNC(CKillerBot::KillerBotCreator)
 
 CKillerBot::CKillerBot(Vector3 Pos, CSector * pSector)
 {
+    m_Type = EntType::ENTTYPE_ENEMY;
     m_Pos = Pos;
     m_Pos.y += m_Radius;
     m_Vel = {0,0,0};
-    m_Health = 3;
+    m_PrevHealth = m_Health = 3;
 
     m_pMySector = pSector;
 
@@ -22,23 +23,48 @@ CKillerBot::CKillerBot(Vector3 Pos, CSector * pSector)
     g_Game.SetNeededTexture(13); // also walk
     g_Game.SetNeededTexture(14); // attack
     g_Game.SetNeededTexture(15); // also attack
+
+    g_Game.SetNeededSound(0); // slice
+    g_Game.SetNeededSound(2); // metal hit
+    g_Game.SetNeededSound(4); // death
+    g_Game.SetNeededSound(5); // death 2
 }
 
 void CKillerBot::Update()
 {
-    IEntity * pPlayer;
+    if(m_PrevHealth > m_Health)
+    {
+        m_PrevHealth = m_Health;
+        StopSound(g_Game.m_Sounds[2]);
+        PlaySound(g_Game.m_Sounds[2]);
+    }
+
+    if(m_Health <= 0)
+    {
+        if(!m_PlayedDeathSound)
+        {
+            StopSound(g_Game.m_Sounds[4]);
+            StopSound(g_Game.m_Sounds[5]);
+            PlaySound(g_Game.m_Sounds[4]);
+            PlaySound(g_Game.m_Sounds[5]);
+            m_PlayedDeathSound = true;
+        }
+        return;
+    }
+
+    IEntity * pPlayer = nullptr;
     for(int i = 0; i < g_Game.NumEntities(); i++)
     {
         if((pPlayer = g_Game.GetEntity(i)))
         {
-            if(pPlayer->GetEntityID() == 0)
+            if(pPlayer->m_Type == EntType::ENTTYPE_PLAYER)
                 break;
         }
     }
 
     if(pPlayer && pPlayer->m_Health > 0)
     {
-        float distance = PointDistance({pPlayer->m_Pos.x, pPlayer->m_Pos.z}, {m_Pos.x, m_Pos.z});
+        float distance = PointDistance3D(pPlayer->m_Pos, m_Pos);
         if(distance < 30.f && distance > 1.5f)
         {
             m_Angle = GetAngleBetweenPoints({m_Pos.x,m_Pos.z}, {pPlayer->m_Pos.x, pPlayer->m_Pos.z});
@@ -51,7 +77,7 @@ void CKillerBot::Update()
         }
         else
         {
-            if(distance <= 1.5f)
+            if(distance <= 2.f)
             {
                 if(!m_Attack)
                 {
@@ -74,6 +100,7 @@ void CKillerBot::Update()
             {
                 if(distance <= 2.f)
                 {
+                    PlaySound(g_Game.m_Sounds[0]);
                     pPlayer->m_Health -= 5;
                 }
                 m_Attack = false;
@@ -140,7 +167,9 @@ void CKillerBot::Render()
 
     BeginMode3D(g_Globals.m_RaylibCamera);
     BeginShaderMode(g_Globals.m_TransparentBillboardShader);
-    if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
+    if(m_Health <= 0)
+    { /*TODO: dead sprite*/}
+    else if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[11], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
     else if(m_Frame == 4)
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[12], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
