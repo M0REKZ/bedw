@@ -1,0 +1,13 @@
+
+Licenses for sounds used in this game:
+
+NOTE: some assets were modified for this game as the asset license allowed it
+
+"0.mp3" License: CC0 (from https://freesound.org/people/NeoSpica/sounds/504615/)
+"1.mp3" License: CC0 (from https://freesound.org/people/Lovecraft_Xavier/sounds/660305/)
+"2.wav" License: CC0 (from https://freesound.org/people/jos1964/sounds/390595/)
+"3.mp3" License: CC0 (from https://freesound.org/people/scotthopkins/sounds/351724/)
+"4.wav" By +KZ. License: CC BY-SA
+"5.mp3" License: CC0 (from https://freesound.org/people/mad-monkey/sounds/66692/)
+"6.mp3" License: CC0 (from https://freesound.org/people/GiocoSound/sounds/421143/)
+"7.mp3" License: CC0 (from https://freesound.org/people/Kneeling/sounds/643869/)
