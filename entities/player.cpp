@@ -204,7 +204,7 @@ void CPlayer::Update()
         {
             StopSound(g_Game.m_Sounds[7]);
             PlaySound(g_Game.m_Sounds[7]);
-            if(std::abs(m_Vel.x) < 0.4f && std::abs(m_Vel.z) < 0.4f)
+            if(std::abs(m_Vel.x) < 0.35f && std::abs(m_Vel.z) < 0.35f)
             {
                 m_Walking = 20;
             }
@@ -214,7 +214,7 @@ void CPlayer::Update()
             }
         }
 
-        if(m_Walking > 10 && (std::abs(m_Vel.x) >= 0.4f || std::abs(m_Vel.z) >= 0.4f))
+        if(m_Walking > 10 && (std::abs(m_Vel.x) >= 0.35f || std::abs(m_Vel.z) >= 0.35f))
         {
             m_Walking = 9;
         }
@@ -250,7 +250,7 @@ void CPlayer::Render()
     else if(std::abs(m_Vel.x) > 0.001f || std::abs(m_Vel.z) > 0.001f)
     {
         m_FrameTime++;
-        if(std::abs(m_Vel.x) < 0.4f && std::abs(m_Vel.z) < 0.4f)
+        if(std::abs(m_Vel.x) < 0.35f && std::abs(m_Vel.z) < 0.35f)
         {
             if(m_FrameTime >= 8)
             {
