@@ -105,6 +105,8 @@ class CGame
     unsigned long long SectorPointerToID(CSector *pSector);
 
     friend class CLevelHandler;
+
+    bool m_Exit = false;
 };
 
 extern CGame g_Game;

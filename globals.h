@@ -26,6 +26,7 @@ class CGlobals
     int m_CurrentWindowHeight = GAME_HEIGHT;
 
     Shader m_TransparentBillboardShader;
+    Font m_MainFont;
 
     void Init();
 };

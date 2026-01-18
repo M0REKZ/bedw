@@ -1,6 +1,7 @@
 // Copyright (c) Benjamín Gajardo (also known as +KZ)
 
 #include "input_handler.h"
+#include "globals.h"
 #include <raylib.h>
 #include <cmath>
 #include <cstdio>
@@ -95,6 +96,12 @@ void CInputHandler::UpdateInput()
             m_Inputs.m_AngleY = M_PI - 1;
         else if (m_Inputs.m_AngleY < 1)
             m_Inputs.m_AngleY = 1;
+
+        if(IsCursorHidden())
+        {
+            SetMousePosition(g_Globals.m_CurrentWindowWidth/2, g_Globals.m_CurrentWindowHeight/2);
+            m_Inputs.m_MousePos = {(float)g_Globals.m_CurrentWindowWidth/2, (float)g_Globals.m_CurrentWindowHeight/2};
+        }
     }
 
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT))
@@ -113,6 +120,15 @@ void CInputHandler::UpdateInput()
     else
     {
         m_Inputs.m_MouseRightClick = false;
+    }
+
+    if(IsKeyDown(KEY_ESCAPE))
+    {
+        m_Inputs.m_Escape = true;
+    }
+    else
+    {
+        m_Inputs.m_Escape = false;
     }
 
     if(IsKeyDown(KEY_ENTER))

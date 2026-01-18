@@ -12,6 +12,7 @@
 #include <input_handler.h>
 #include <level_handler.h>
 #include <algorithm>
+#include <pause_handler.h>
 
 CGame g_Game;
 
@@ -52,6 +53,10 @@ void CGame::RenderSectors()
 
         for(int vertid = 0; vertid < m_pSectors[i].m_NumVertices; vertid++)
         {
+            // dont render if value is 10
+            if(m_pSectors[i].m_pTexturesIDs[vertid] == 10)
+                continue;
+
             Vector3 Verts[4];
             if(m_pSectors[i].m_IsCeilingSlope && vertid == m_pSectors[i].m_CeilingSlopeVert)
                 Verts[0] = {m_pSectors[i].m_pVertices[vertid].x, WallCeilingSlope, m_pSectors[i].m_pVertices[vertid].y};
@@ -209,48 +214,54 @@ void CGame::RenderSectors()
         BeginMode3D(g_Globals.m_RaylibCamera);
         rlBegin(RL_TRIANGLES);
 
-        rlSetTexture(m_Textures[m_pSectors[i].m_CeilingTextureID].id);
-        rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
-
-        for(int vertid = 1; vertid < m_pSectors[i].m_NumVertices; vertid++)
+        if(m_pSectors[i].m_CeilingTextureID != 10)
         {
-            rlTexCoord2f((m_pSectors[i].m_pVertices[0].x)/32, (m_pSectors[i].m_pVertices[0].y)/32);
-            if(m_pSectors[i].m_IsCeilingSlope && 0 == m_pSectors[i].m_CeilingSlopeVert)
-                rlVertex3f(m_pSectors[i].m_pVertices[0].x, WallCeilingSlope, m_pSectors[i].m_pVertices[0].y);
-            else
-                rlVertex3f(m_pSectors[i].m_pVertices[0].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[0].y);
-            rlTexCoord2f((m_pSectors[i].m_pVertices[vertid].x)/32, (m_pSectors[i].m_pVertices[vertid].y)/32);
-            if(m_pSectors[i].m_IsCeilingSlope && vertid == m_pSectors[i].m_CeilingSlopeVert)
-                rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, WallCeilingSlope, m_pSectors[i].m_pVertices[vertid].y);
-            else
-                rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[vertid].y);
-            rlTexCoord2f((m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x)/32, (m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y)/32);
-            if(m_pSectors[i].m_IsCeilingSlope && (vertid + 1) % (m_pSectors[i].m_NumVertices) == m_pSectors[i].m_CeilingSlopeVert)
-                rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, WallCeilingSlope, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
-            else
-                rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
+            rlSetTexture(m_Textures[m_pSectors[i].m_CeilingTextureID].id);
+            rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+
+            for(int vertid = 1; vertid < m_pSectors[i].m_NumVertices; vertid++)
+            {
+                rlTexCoord2f((m_pSectors[i].m_pVertices[0].x)/32, (m_pSectors[i].m_pVertices[0].y)/32);
+                if(m_pSectors[i].m_IsCeilingSlope && 0 == m_pSectors[i].m_CeilingSlopeVert)
+                    rlVertex3f(m_pSectors[i].m_pVertices[0].x, WallCeilingSlope, m_pSectors[i].m_pVertices[0].y);
+                else
+                    rlVertex3f(m_pSectors[i].m_pVertices[0].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[0].y);
+                rlTexCoord2f((m_pSectors[i].m_pVertices[vertid].x)/32, (m_pSectors[i].m_pVertices[vertid].y)/32);
+                if(m_pSectors[i].m_IsCeilingSlope && vertid == m_pSectors[i].m_CeilingSlopeVert)
+                    rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, WallCeilingSlope, m_pSectors[i].m_pVertices[vertid].y);
+                else
+                    rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[vertid].y);
+                rlTexCoord2f((m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x)/32, (m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y)/32);
+                if(m_pSectors[i].m_IsCeilingSlope && (vertid + 1) % (m_pSectors[i].m_NumVertices) == m_pSectors[i].m_CeilingSlopeVert)
+                    rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, WallCeilingSlope, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
+                else
+                    rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, m_pSectors[i].m_Ceiling, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
+            }
         }
 
-        rlSetTexture(m_Textures[m_pSectors[i].m_FloorTextureID].id);
-        rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
-
-        for(int vertid = 1; vertid < m_pSectors[i].m_NumVertices; vertid++)
+        if(m_pSectors[i].m_FloorTextureID != 10)
         {
-            rlTexCoord2f((m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x)/32, (m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y)/32);
-            if(m_pSectors[i].m_IsFloorSlope && (vertid + 1) % (m_pSectors[i].m_NumVertices) == m_pSectors[i].m_FloorSlopeVert)
-                rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, WallFloorSlope, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
-            else
-                rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
-            rlTexCoord2f((m_pSectors[i].m_pVertices[vertid].x)/32, (m_pSectors[i].m_pVertices[vertid].y)/32);
-            if(m_pSectors[i].m_IsFloorSlope && vertid == m_pSectors[i].m_FloorSlopeVert)
-                rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, WallFloorSlope, m_pSectors[i].m_pVertices[vertid].y);
-            else
-                rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[vertid].y);
-            rlTexCoord2f((m_pSectors[i].m_pVertices[0].x)/32, (m_pSectors[i].m_pVertices[0].y)/32);
-            if(m_pSectors[i].m_IsFloorSlope && 0 == m_pSectors[i].m_FloorSlopeVert)
-                rlVertex3f(m_pSectors[i].m_pVertices[0].x, WallFloorSlope, m_pSectors[i].m_pVertices[0].y);
-            else
-                rlVertex3f(m_pSectors[i].m_pVertices[0].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[0].y);
+            rlSetTexture(m_Textures[m_pSectors[i].m_FloorTextureID].id);
+            rlColor4ub(WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+
+            for(int vertid = 1; vertid < m_pSectors[i].m_NumVertices; vertid++)
+            {
+                rlTexCoord2f((m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x)/32, (m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y)/32);
+                if(m_pSectors[i].m_IsFloorSlope && (vertid + 1) % (m_pSectors[i].m_NumVertices) == m_pSectors[i].m_FloorSlopeVert)
+                    rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, WallFloorSlope, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
+                else
+                    rlVertex3f(m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[(vertid + 1) % (m_pSectors[i].m_NumVertices)].y);
+                rlTexCoord2f((m_pSectors[i].m_pVertices[vertid].x)/32, (m_pSectors[i].m_pVertices[vertid].y)/32);
+                if(m_pSectors[i].m_IsFloorSlope && vertid == m_pSectors[i].m_FloorSlopeVert)
+                    rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, WallFloorSlope, m_pSectors[i].m_pVertices[vertid].y);
+                else
+                    rlVertex3f(m_pSectors[i].m_pVertices[vertid].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[vertid].y);
+                rlTexCoord2f((m_pSectors[i].m_pVertices[0].x)/32, (m_pSectors[i].m_pVertices[0].y)/32);
+                if(m_pSectors[i].m_IsFloorSlope && 0 == m_pSectors[i].m_FloorSlopeVert)
+                    rlVertex3f(m_pSectors[i].m_pVertices[0].x, WallFloorSlope, m_pSectors[i].m_pVertices[0].y);
+                else
+                    rlVertex3f(m_pSectors[i].m_pVertices[0].x, m_pSectors[i].m_Floor, m_pSectors[i].m_pVertices[0].y);
+            }
         }
 
         rlEnd();
@@ -1105,6 +1116,7 @@ bool CGame::InitTextures()
             m_Textures[id] = LoadTexture(filename);
         }
     }
+    m_NeededTextures.clear();
 
     for(auto id : m_NeededSounds)
     {
@@ -1121,6 +1133,7 @@ bool CGame::InitTextures()
             continue;
         }
     }
+    m_NeededSounds.clear();
 
     return true;
 }
@@ -1147,7 +1160,7 @@ bool CGame::Init()
 
     if(!m_EditorMode)
     {
-        g_LevelHandler.ReadLevel("TESTLEVEL.txt");
+        return g_LevelHandler.LoadMenuLevel();
     }
     else
     {
@@ -1182,16 +1195,19 @@ bool CGame::Init()
         m_pSectors[0].m_pVertices[5].x = -20.f;
         m_pSectors[0].m_pVertices[5].y = 10.f;
 
-        m_pSectors[0].m_Ceiling = 10.f;
+        m_pSectors[0].m_Ceiling = 50.f;
         m_pSectors[0].m_Floor = -10.f;
 
         m_pCurrentSector = &m_pSectors[0];
+
+        return InitTextures();
     }
-    return InitTextures();
 }
 
 void CGame::Destroy()
 {
+    g_PauseHandler.m_IsMenu = false;
+
     if(m_pEntities)
     {
         for(int i = 0; i < m_NumEntities; i++)
@@ -1224,7 +1240,14 @@ void CGame::Destroy()
     for (auto &texture : m_Textures)
     {
         UnloadTexture(texture.second);
+    }
+    m_Textures.clear();
+
+    for (auto &sound : m_Sounds)
+    {
+        UnloadSound(sound.second);
     } 
+    m_Sounds.clear();
 }
 
 void CGame::Update()

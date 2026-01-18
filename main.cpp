@@ -7,6 +7,7 @@
 #include "game.h"
 #include "globals.h"
 #include <cstring>
+#include "pause_handler.h"
 
 int main(int argc, char** argv)
 {
@@ -45,17 +46,20 @@ int main(int argc, char** argv)
 
         g_InputHandler.UpdateInput();
 
-        g_Game.Update();
+        g_PauseHandler.Update();
+        if(!g_PauseHandler.m_IsPaused)
+            g_Game.Update();
 
         g_Globals.m_RaylibCamera.position = g_Globals.m_Camera.m_Pos;
         g_Globals.m_RaylibCamera.target = g_Globals.m_Camera.m_Target;
 
         BeginDrawing();
-        ClearBackground({0,0,0,255});
+        ClearBackground({0,24,87,255});
         g_Game.Render();
+        g_PauseHandler.Render();
         EndDrawing();
 
-        if(WindowShouldClose())
+        if(WindowShouldClose() || g_Game.m_Exit)
             exit = true;
     }
 

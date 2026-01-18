@@ -6,6 +6,7 @@
 #include <fstream>
 #include <game.h>
 #include <entities/entity_base.h>
+#include <pause_handler.h>
 
 CLevelHandler g_LevelHandler;
 
@@ -162,7 +163,7 @@ bool CLevelHandler::ReadLevel(const char *filename)
     g_Game.m_pCurrentSector = g_Game.GetSector(currentgamesector);
 
     file.close();
-    return false;
+    return true;
 }
 
 bool CLevelHandler::SaveLevel(const char *filename)
@@ -228,4 +229,26 @@ bool CLevelHandler::SaveLevel(const char *filename)
 
     file.close();
     return true;
+}
+
+bool CLevelHandler::LoadMenuLevel()
+{
+    bool res = ReadLevel("MENULEVEL.txt");
+    g_PauseHandler.m_IsMenu = true;
+    g_Game.InitTextures();
+    return res;
+}
+
+bool CLevelHandler::LoadFirstLevel()
+{
+    return LoadLevelNum(0);
+}
+
+bool CLevelHandler::LoadLevelNum(unsigned int lvl)
+{
+    char filename[256] = {'\0'};
+    snprintf(filename, sizeof(filename), "%u.txt", lvl);
+    bool res = ReadLevel(filename);
+    g_Game.InitTextures();
+    return res;
 }
