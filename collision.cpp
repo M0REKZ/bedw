@@ -315,3 +315,23 @@ void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSe
     if(pGroundedState)
         *pGroundedState = grounded;
 }
+
+void DoEntityCollision(Vector3 MyPos, Vector3 &InOutVel, float MyRadius, Vector3 HisPos, float HisRadius)
+{
+    Vector3 FuturePoint = {InOutVel.x + MyPos.x, InOutVel.y + MyPos.y, InOutVel.z + MyPos.z};
+    float dist = PointDistance3D(MyPos, HisPos);
+    float futuredist = PointDistance3D(FuturePoint, HisPos);
+    
+    float BothRadius = (MyRadius + HisRadius);
+    if(futuredist <= dist && dist < BothRadius/2)
+    {
+        float angle = GetAngleBetweenPoints({HisPos.x, HisPos.z}, {MyPos.x, MyPos.z});
+        Vector2 RadiusColDir = {MyRadius * cosf(angle), MyRadius * sinf(angle)};
+        InOutVel.x = HisPos.x - MyPos.x;
+        InOutVel.z = HisPos.z - MyPos.z;
+        InOutVel.x += RadiusColDir.x;
+        InOutVel.z += RadiusColDir.y;
+        InOutVel.x /= 2.f;
+        InOutVel.z /= 2.f;
+    }
+}

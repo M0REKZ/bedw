@@ -25,6 +25,9 @@ void CPlayer::DoAttack()
         {
             if(pEntity->m_Type == EntType::ENTTYPE_ENEMY)
             {
+                if(pEntity->m_Health <= 0)
+                    continue;
+
                 float distance = PointDistance3D(pEntity->m_Pos, m_Pos);
 
                 if(distance < closestdistance)
@@ -56,6 +59,7 @@ CPlayer::CPlayer(Vector3 Pos)
     m_Pos = Pos;
     m_Pos.y += m_Radius;
     m_Vel = {0,0,0};
+    m_CanCollide = true;
     g_Game.SetNeededTexture(4); // chydia image
     g_Game.SetNeededTexture(5); // run
     g_Game.SetNeededTexture(6); // also run
@@ -84,6 +88,7 @@ void CPlayer::Update()
 
     if(m_Health <=0)
     {
+        m_CanCollide = false;
         return;
     }
 
@@ -173,6 +178,20 @@ void CPlayer::Update()
     CSector *pCurrentSector = g_Game.GetCurrentSector();
 
     //Player collision
+    IEntity * pEntity = nullptr;
+    for(int i = 0; i < g_Game.NumEntities(); i++)
+    {
+        if((pEntity = g_Game.GetEntity(i)))
+        {
+            if(pEntity == this)
+                continue;
+
+            if(!pEntity->m_CanCollide)
+                continue;
+                
+            DoEntityCollision(m_Pos, m_Vel, m_Radius, pEntity->m_Pos, pEntity->m_Radius);
+        }
+    }
     DoMovement(m_Pos, m_Vel, m_Radius, &pCurrentSector, &m_Grounded);
 
     g_Game.SetCurrentSector(pCurrentSector);

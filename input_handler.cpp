@@ -76,7 +76,7 @@ void CInputHandler::UpdateInput()
     }
 
     Vector2 PrevMousePos = m_Inputs.m_MousePos;
-    m_Inputs.m_MousePos = GetMousePosition();
+    UpdateMousePos();
 
     if((PrevMousePos.x != m_Inputs.m_MousePos.x || PrevMousePos.y != m_Inputs.m_MousePos.y) &&
         PrevMousePos.x != 0.f && PrevMousePos.y != 0.f)
@@ -247,4 +247,9 @@ void CInputHandler::UpdateInput()
     {
         m_Inputs.m_EditorPlaceEntityKey = false;
     }
+}
+
+void CInputHandler::UpdateMousePos()
+{
+    m_Inputs.m_MousePos = GetMousePosition();
 }

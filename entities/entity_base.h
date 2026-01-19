@@ -23,6 +23,7 @@ class IEntity
     float m_Radius = 1.f;
     int m_Health = 0;
     enum EntType m_Type = ENTTYPE_NONE;
+    bool m_CanCollide = false;
 
     virtual void Update() {};
     virtual void Render() {};

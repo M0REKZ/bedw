@@ -41,6 +41,7 @@ class CInputHandler
     public:
     void UpdateInput();
     const SInput * GetInputs() { return &m_Inputs; }
+    void UpdateMousePos();
 };
 
 extern CInputHandler g_InputHandler;

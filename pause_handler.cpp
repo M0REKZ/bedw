@@ -113,6 +113,8 @@ void CPauseHandler::Update()
         if(IsCursorHidden())
         {
             ShowCursor();
+            SetMousePosition(g_Globals.m_CurrentWindowWidth/2, g_Globals.m_CurrentWindowHeight/8);
+            g_InputHandler.UpdateMousePos();
         }
 
         if(m_IsMenu && m_CurrentPage == 0)

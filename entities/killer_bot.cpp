@@ -15,6 +15,7 @@ CKillerBot::CKillerBot(Vector3 Pos, CSector * pSector)
     m_Pos.y += m_Radius;
     m_Vel = {0,0,0};
     m_PrevHealth = m_Health = 3;
+    m_CanCollide = true;
 
     m_pMySector = pSector;
 
@@ -49,6 +50,7 @@ void CKillerBot::Update()
             PlaySound(g_Game.m_Sounds[5]);
             m_PlayedDeathSound = true;
         }
+        m_CanCollide = false;
         return;
     }
 
@@ -132,6 +134,20 @@ void CKillerBot::Update()
     if(std::abs(m_Vel.z) < 0.01f)
         m_Vel.z = 0.f;
 
+    IEntity * pEntity = nullptr;
+    for(int i = 0; i < g_Game.NumEntities(); i++)
+    {
+        if((pEntity = g_Game.GetEntity(i)))
+        {
+            if(pEntity == this)
+                continue;
+
+            if(!pEntity->m_CanCollide)
+                continue;
+            
+            DoEntityCollision(m_Pos, m_Vel, m_Radius, pEntity->m_Pos, pEntity->m_Radius);
+        }
+    }
     DoMovement(m_Pos, m_Vel, m_Radius, &m_pMySector, &m_Grounded);
 
     m_Pos.x += m_Vel.x;
