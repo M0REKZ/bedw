@@ -1176,6 +1176,7 @@ bool CGame::Init()
 
     if(!m_EditorMode)
     {
+        g_PauseHandler.m_IsMenu = true;
         return g_LevelHandler.LoadMenuLevel();
     }
     else

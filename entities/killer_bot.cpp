@@ -12,6 +12,7 @@ CKillerBot::CKillerBot(Vector3 Pos, CSector * pSector)
 {
     m_Type = EntType::ENTTYPE_ENEMY;
     m_Pos = Pos;
+    m_Radius = 1.2f;
     m_Pos.y += m_Radius;
     m_Vel = {0,0,0};
     m_PrevHealth = m_Health = 3;
@@ -67,11 +68,11 @@ void CKillerBot::Update()
     if(pPlayer && pPlayer->m_Health > 0)
     {
         float distance = PointDistance3D(pPlayer->m_Pos, m_Pos);
-        if(distance < 30.f && distance > 1.5f)
+        if(distance < 50.f && distance > 2.f)
         {
             m_Angle = GetAngleBetweenPoints({m_Pos.x,m_Pos.z}, {pPlayer->m_Pos.x, pPlayer->m_Pos.z});
-            m_WantedVel.x = cosf(m_Angle) / 5;
-            m_WantedVel.z = sinf(m_Angle) / 5;
+            m_WantedVel.x = cosf(m_Angle) / 2.f;
+            m_WantedVel.z = sinf(m_Angle) / 2.f;
             if(!m_Attack)
             {
                 m_AttackFrame = 0;
