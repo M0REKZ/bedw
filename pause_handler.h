@@ -4,7 +4,9 @@
 
 class CPauseHandler
 {
-    void HandleMenuOption(const char * pOption);
+    void HandleMenuOption(unsigned int Page, int Option);
+
+    const char * GetOptionTextLabel(unsigned int Page, int Option);
 
     public:
     bool m_IsPaused = false;

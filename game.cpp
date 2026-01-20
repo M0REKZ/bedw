@@ -13,6 +13,8 @@
 #include <level_handler.h>
 #include <algorithm>
 #include <pause_handler.h>
+#include "helper_fs.h"
+#include <config_handler.h>
 
 CGame g_Game;
 
@@ -1156,6 +1158,8 @@ void CGame::SetNeededSound(unsigned int id)
 
 bool CGame::Init()
 {
+    CreateSavePath();
+    g_ConfigHandler.Init();
     InitEntityCreatorList();
 
     if(!m_EditorMode)

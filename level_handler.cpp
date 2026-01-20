@@ -7,6 +7,7 @@
 #include <game.h>
 #include <entities/entity_base.h>
 #include <pause_handler.h>
+#include <config_handler.h>
 
 CLevelHandler g_LevelHandler;
 
@@ -246,6 +247,7 @@ bool CLevelHandler::LoadFirstLevel()
 
 bool CLevelHandler::LoadLevelNum(unsigned int lvl)
 {
+    g_ConfigHandler.m_GameProgress.m_CurrentLevelNumber = lvl;
     char filename[256] = {'\0'};
     snprintf(filename, sizeof(filename), "%u.txt", lvl);
     bool res = ReadLevel(filename);

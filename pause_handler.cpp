@@ -1,6 +1,7 @@
 // Copyright (c) Benjamín Gajardo (also known as +KZ)
 
 #include "pause_handler.h"
+#include <config_handler.h>
 #include <input_handler.h>
 #include <level_handler.h>
 #include <helper_ui.h>
@@ -8,6 +9,8 @@
 #include <cstdio>
 #include <cstring>
 #include <game.h>
+
+#define MAX_PAGES 5
 
 CPauseHandler g_PauseHandler;
 
@@ -28,41 +31,156 @@ static const char * s_PageMainMenu[] = {
     nullptr,
 };
 
-static const char ** s_OptionsList[5] = {
-    s_PagePaused, // 0
-    s_PageMainMenu, // 1
+static const char * s_PageSettings[] = {
+    "Keyboard",
+    "Mouse",
+    "", // fullscreen
+    "Go Back",
+    nullptr,
 };
 
-void CPauseHandler::HandleMenuOption(const char * pOption)
+static const char * s_PageKeyboard[] = {
+    "",
+    "Go Back",
+    nullptr,
+};
+
+static const char * s_PageMouse[] = {
+    "",
+    "",
+    "Go Back",
+    nullptr,
+};
+
+static const char ** s_OptionsList[MAX_PAGES] = {
+    s_PagePaused, // 0
+    s_PageMainMenu, // 1
+    s_PageSettings, // 2
+    s_PageKeyboard, // 3
+    s_PageMouse, // 4
+};
+
+void CPauseHandler::HandleMenuOption(unsigned int Page, int Option)
 {
-    if(!pOption)
+    if(Option < 0)
         return;
 
-    printf("%s\n",pOption);
+    if(Page == 0 || Page == 1)
+    {
+        if(Option == 2)
+        {
+            m_CurrentPage = 2;
+            return;
+        }
+    }
+    if(Page == 0)
+    {
+        if(Option == 0) //Resume
+        {
+            m_IsPaused = false;
+            return;
+        }
+        if(Option == 1) //Retry
+        {
+            g_LevelHandler.LoadLevelNum(g_ConfigHandler.m_GameProgress.m_CurrentLevelNumber);
+            m_IsPaused = false;
+            return;
+        }
+        if(Option == 3) //Main Menu
+        {
+            g_ConfigHandler.SaveGameProgress();
+            g_LevelHandler.LoadMenuLevel();
+            return;
+        }
+    }
+    if(Page == 1)
+    {
+        if(Option == 1) //New game
+        {
+            g_LevelHandler.LoadFirstLevel();
+            return;
+        }
+        if(Option == 3) //Exit
+        {
+            g_Game.m_Exit = true;
+            return;
+        }
+    }
+    if(Page == 2)
+    {
+        if(Option == 0)
+        {
+            m_CurrentPage = 3;
+            return;
+        }
+        if(Option == 1)
+        {
+            m_CurrentPage = 4;
+            return;
+        }
+        if(Option == 2)
+        {
+            ToggleBorderlessWindowed();
+            g_ConfigHandler.m_Config.m_Fullscreen ^= 1;
+            if(g_ConfigHandler.m_Config.m_Fullscreen)
+            {
+                SetWindowSize(GetMonitorWidth(GetCurrentMonitor()),GetMonitorHeight(GetCurrentMonitor()));
+                SetWindowPosition(0,0);
+            }
+            else
+            {
+                SetWindowSize(GAME_WIDTH, GAME_HEIGHT);
+                SetWindowPosition(GetMonitorWidth(GetCurrentMonitor()) / 2 - GAME_WIDTH/2, GetMonitorHeight(GetCurrentMonitor()) / 2 - GAME_HEIGHT/2);
+            }
+            g_Globals.m_CurrentWindowWidth = GetScreenWidth();
+            g_Globals.m_CurrentWindowHeight = GetScreenHeight();
+            return;
+        }
+        if(Option == 3)
+        {
+            g_ConfigHandler.SaveConfig();
+            m_CurrentPage = m_IsMenu ? 1 : 0;
+            return;
+        }
+    }
+    if(Page == 3)
+    {
+        if(Option == 1)
+        {
+            g_ConfigHandler.SaveConfig();
+            m_CurrentPage = 2;
+            return;
+        }
+    }
+    if(Page == 4)
+    {
+        if(Option == 2)
+        {
+            g_ConfigHandler.SaveConfig();
+            m_CurrentPage = 2;
+            return;
+        }
+    }
+}
 
-    if(!strncmp(pOption, "Resume", sizeof("Resume")))
+const char *CPauseHandler::GetOptionTextLabel(unsigned int Page, int Option)
+{
+    if(Page == 2)
     {
-        m_IsPaused = false;
-        return;
-    }
-    
-    if(!strncmp(pOption, "New Game", sizeof("New Game")))
-    {
-        g_LevelHandler.LoadFirstLevel();
-        return;
+        if(Option == 2)
+        {
+            if(IsWindowFullscreen() || (g_Globals.m_CurrentWindowWidth == GetMonitorWidth(GetCurrentMonitor()) && g_Globals.m_CurrentWindowHeight == GetMonitorHeight(GetCurrentMonitor())))
+            {
+                return "Fullscreen";
+            }
+            else
+            {
+                return "Windowed";
+            }
+        }
     }
 
-    if(!strncmp(pOption, "Main menu", sizeof("Main menu")))
-    {
-        g_LevelHandler.LoadMenuLevel();
-        return;
-    }
-
-    if(!strncmp(pOption, "Exit", sizeof("Exit")))
-    {
-        g_Game.m_Exit = true;
-        return;
-    }
+    return nullptr;
 }
 
 void CPauseHandler::Update()
@@ -129,8 +247,12 @@ void CPauseHandler::Update()
         UIButtonState state = BTNSTATE_NONE;
         while(s_OptionsList[m_CurrentPage][option])
         {
-            state = UpdateUIButtonCenterScaledToScreen(pInput, g_Globals.m_MainFont, s_OptionsList[m_CurrentPage][option], g_Globals.m_CurrentWindowWidth/2,
-                g_Globals.m_CurrentWindowHeight/3 + ((option + 1) * g_Globals.m_CurrentWindowHeight/8), 5);
+            const char * pText = GetOptionTextLabel(m_CurrentPage, option);
+            if(!pText)
+                pText = s_OptionsList[m_CurrentPage][option];
+            
+            state = UpdateUIButtonCenterScaledToScreen(pInput, g_Globals.m_MainFont, pText, g_Globals.m_CurrentWindowWidth/2,
+                g_Globals.m_CurrentWindowHeight/3 + ((option + 1.5) * g_Globals.m_CurrentWindowHeight/8), 5);
             
             if(state == BTNSTATE_HOVER || state == BTNSTATE_PRESSED)
                 break;
@@ -159,8 +281,11 @@ void CPauseHandler::Update()
                 m_HoverOption = option;
 
             //try with keyboard controls
-
-            if(pInput->m_ArrowUp)
+            if(pInput->m_MouseClick) //Mouse click seems bugged on window resize
+            {
+                waiting_for_key_release = true;
+            }
+            else if(pInput->m_ArrowUp)
             {
                 if(!waiting_for_key_release)
                 {
@@ -196,7 +321,7 @@ void CPauseHandler::Update()
 
         if(m_Selected && m_HoverOption >= 0 && m_HoverOption < num_options)
         {
-            HandleMenuOption(s_OptionsList[m_CurrentPage][m_HoverOption]);
+            HandleMenuOption(m_CurrentPage, m_HoverOption);
         }
     }
     else
@@ -225,8 +350,11 @@ void CPauseHandler::Render()
         int option = 0;
         while(s_OptionsList[m_CurrentPage][option])
         {
-            RenderUIButtonCenterScaledToScreen(pInput, g_Globals.m_MainFont, s_OptionsList[m_CurrentPage][option], g_Globals.m_CurrentWindowWidth/2,
-                g_Globals.m_CurrentWindowHeight/3 + ((option + 1) * g_Globals.m_CurrentWindowHeight/8), 5, m_HoverOption == option ? GRAY : RAYWHITE);
+            const char * pText = GetOptionTextLabel(m_CurrentPage, option);
+            if(!pText)
+                pText = s_OptionsList[m_CurrentPage][option];
+            RenderUIButtonCenterScaledToScreen(pInput, g_Globals.m_MainFont, pText, g_Globals.m_CurrentWindowWidth/2,
+                g_Globals.m_CurrentWindowHeight/3 + ((option + 1.5) * g_Globals.m_CurrentWindowHeight/8), 5, m_HoverOption == option ? GRAY : RAYWHITE);
             option++;
         }
     }

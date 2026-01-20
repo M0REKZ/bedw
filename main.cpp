@@ -8,6 +8,7 @@
 #include "globals.h"
 #include <cstring>
 #include "pause_handler.h"
+#include <config_handler.h>
 
 int main(int argc, char** argv)
 {
@@ -32,6 +33,15 @@ int main(int argc, char** argv)
 
     if(!g_Game.Init())
         return -1;
+
+    if(g_ConfigHandler.m_Config.m_Fullscreen)
+    {
+        ToggleBorderlessWindowed();
+        SetWindowSize(GetMonitorWidth(GetCurrentMonitor()),GetMonitorHeight(GetCurrentMonitor()));
+        SetWindowPosition(0,0);
+        g_Globals.m_CurrentWindowWidth = GetScreenWidth();
+        g_Globals.m_CurrentWindowHeight = GetScreenHeight();
+    }
 
     bool exit = false;
     

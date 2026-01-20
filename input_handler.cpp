@@ -5,12 +5,13 @@
 #include <raylib.h>
 #include <cmath>
 #include <cstdio>
+#include <config_handler.h>
 
 CInputHandler g_InputHandler;
 
 void CInputHandler::UpdateInput()
 {
-    if(IsKeyDown(KEY_W))
+    if(IsKeyDown(g_ConfigHandler.m_Config.m_KeyFront))
     {
         m_Inputs.m_Front = true;
     }
@@ -19,7 +20,7 @@ void CInputHandler::UpdateInput()
         m_Inputs.m_Front = false;
     }
 
-    if(IsKeyDown(KEY_A))
+    if(IsKeyDown(g_ConfigHandler.m_Config.m_KeyLeft))
     {
         m_Inputs.m_Left = true;
     }
@@ -28,7 +29,7 @@ void CInputHandler::UpdateInput()
         m_Inputs.m_Left = false;
     }
 
-    if(IsKeyDown(KEY_S))
+    if(IsKeyDown(g_ConfigHandler.m_Config.m_KeyBack))
     {
         m_Inputs.m_Back = true;
     }
@@ -37,7 +38,7 @@ void CInputHandler::UpdateInput()
         m_Inputs.m_Back = false;
     }
 
-    if(IsKeyDown(KEY_D))
+    if(IsKeyDown(g_ConfigHandler.m_Config.m_KeyRight))
     {
         m_Inputs.m_Right = true;
     }
@@ -46,7 +47,7 @@ void CInputHandler::UpdateInput()
         m_Inputs.m_Right = false;
     }
 
-    if(IsKeyDown(KEY_SPACE))
+    if(IsKeyDown(g_ConfigHandler.m_Config.m_KeyJump))
     {
         m_Inputs.m_Jump = true;
     }
@@ -58,7 +59,7 @@ void CInputHandler::UpdateInput()
     if(IsKeyDown(KEY_LEFT))
     {
         m_Inputs.m_ArrowLeft = true;
-        m_Inputs.m_Angle -= 0.1f;
+        //m_Inputs.m_Angle -= 0.1f;
     }
     else
     {
@@ -68,7 +69,7 @@ void CInputHandler::UpdateInput()
     if(IsKeyDown(KEY_RIGHT))
     {
         m_Inputs.m_ArrowRight = true;
-        m_Inputs.m_Angle += 0.1f;
+        //m_Inputs.m_Angle += 0.1f;
     }
     else
     {

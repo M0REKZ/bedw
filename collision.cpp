@@ -323,7 +323,7 @@ void DoEntityCollision(Vector3 MyPos, Vector3 &InOutVel, float MyRadius, Vector3
     float futuredist = PointDistance3D(FuturePoint, HisPos);
     
     float BothRadius = (MyRadius + HisRadius);
-    if(futuredist <= dist && dist < BothRadius/2)
+    if(futuredist * 1.1 <= dist && dist < BothRadius/2)
     {
         float angle = GetAngleBetweenPoints({HisPos.x, HisPos.z}, {MyPos.x, MyPos.z});
         Vector2 RadiusColDir = {MyRadius * cosf(angle), MyRadius * sinf(angle)};
