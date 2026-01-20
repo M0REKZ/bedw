@@ -7,6 +7,8 @@
 #include <input_handler.h>
 #include <cmath>
 #include <cstdio>
+#include <pause_handler.h>
+#include <helper_ui.h>
 
 ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 {
@@ -324,6 +326,19 @@ void CPlayer::Render()
         DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[17], {0,0,m_LookingLeft ? -25.f : 25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
     EndShaderMode();
     EndMode3D();
+
+    if(!g_PauseHandler.m_IsPaused)
+    {
+        float vscale = (g_Globals.m_CurrentWindowHeight / GAME_HEIGHT);
+        float xscale = (g_Globals.m_CurrentWindowWidth / GAME_WIDTH);
+        BeginMode2D(g_Globals.m_RaylibCamera2D);
+        DrawRectangle(0, g_Globals.m_CurrentWindowHeight - 60 * vscale, g_Globals.m_CurrentWindowWidth, 60 * vscale, {38,38,38,255});
+        DrawTextCenterScaledToScreen(g_Globals.m_MainFont, "Chydia", g_Globals.m_CurrentWindowWidth/2, g_Globals.m_CurrentWindowHeight - 30 * vscale, 5);
+        DrawTextCenterScaledToScreen(g_Globals.m_MainFont, "Health", 10 * xscale + (g_Globals.m_CurrentWindowWidth/4 - 20)/2, g_Globals.m_CurrentWindowHeight - 45 * vscale, 2.5);
+        DrawRectangle(10 * xscale, g_Globals.m_CurrentWindowHeight - 20 * vscale, g_Globals.m_CurrentWindowWidth/4 - 20, 15 * vscale, RED);
+        DrawRectangle(10 * xscale, g_Globals.m_CurrentWindowHeight - 20 * vscale, (g_Globals.m_CurrentWindowWidth/4 - 20) * std::max((float)m_Health/100,0.f), 15 * vscale, GREEN);
+        EndMode2D();
+    }
 }
 
 int CPlayer::GetSectorID()
