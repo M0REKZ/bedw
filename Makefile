@@ -10,6 +10,7 @@ SRC = \
 	entities/entity_list.cpp \
 	entities/player.cpp \
 	entities/killer_bot.cpp \
+	entities/killer_drone.cpp \
 	entities/menu_camera.cpp \
 	collision.cpp \
 	config_handler.cpp \

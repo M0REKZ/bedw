@@ -152,7 +152,7 @@ void CPlayer::Update()
 
     if(m_Grounded && pInput->m_Jump)
     {
-        m_Vel.y = 1.f;
+        m_Vel.y = 0.65f;
         PlaySound(g_Game.m_Sounds[6]);
     }
 
@@ -167,7 +167,7 @@ void CPlayer::Update()
     m_Vel.z *= 0.9f;
     if(std::abs(m_Vel.z) < std::abs(m_WantedVel.z))
         m_Vel.z += (m_WantedVel.z > 0.f ? 0.1f : -0.1f) * std::abs(sinf(m_Angle));
-    m_Vel.y += -0.05;
+    m_Vel.y += -0.025;
 
     if(std::abs(m_Vel.x) < 0.01f)
         m_Vel.x = 0.f;
