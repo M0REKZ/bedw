@@ -1094,7 +1094,7 @@ void CGame::UpdateEditorInput()
     }
 }
 
-bool CGame::InitTextures()
+bool CGame::InitAssets()
 {
 
     //count sector textures
@@ -1136,6 +1136,18 @@ bool CGame::InitTextures()
         }
     }
     m_NeededSounds.clear();
+
+    if(m_HasMusic)
+    {
+        snprintf(filename, sizeof(filename), "data/music/%d.mp3", m_MusicID);
+        if(FileExists(filename))
+        {
+            m_Music = LoadMusicStream(filename);
+            PlayMusicStream(m_Music);
+            SetMusicPan(m_Music, 0.f);
+            SetMusicVolume(m_Music, 0.8f);
+        }
+    }
 
     return true;
 }
@@ -1204,7 +1216,7 @@ bool CGame::Init()
 
         m_pCurrentSector = &m_pSectors[0];
 
-        return InitTextures();
+        return InitAssets();
     }
 }
 
@@ -1252,6 +1264,13 @@ void CGame::Destroy()
         UnloadSound(sound.second);
     } 
     m_Sounds.clear();
+
+    if(m_HasMusic)
+    {
+        StopMusicStream(m_Music);
+        UnloadMusicStream(m_Music);
+        m_HasMusic = false;
+    }
 }
 
 void CGame::Update()

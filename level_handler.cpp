@@ -32,6 +32,12 @@ bool CLevelHandler::ReadLevel(const char *filename)
 
     while(std::getline(file, line))
     {
+        if(strstr(line.c_str(), "MUSIC"))
+        {
+            sscanf(line.c_str(), "MUSIC %u", &g_Game.m_MusicID);
+            g_Game.m_HasMusic = true;
+        }
+
         if(strstr(line.c_str(), "CURSEC"))
         {
             sscanf(line.c_str(), "CURSEC %llu", &currentgamesector);
@@ -173,6 +179,9 @@ bool CLevelHandler::SaveLevel(const char *filename)
     snprintf(filepath, sizeof(filepath), "data/levels/%s", filename);
     std::ofstream file(filepath);
 
+    if(g_Game.m_HasMusic)
+        file << "MUSIC " << g_Game.m_MusicID << std::endl;
+
     file << "CURSEC " << g_Game.SectorPointerToID(g_Game.GetCurrentSector()) << std::endl;
 
     file << "NUMSECTORS " << g_Game.NumSectors() << std::endl;
@@ -236,7 +245,7 @@ bool CLevelHandler::LoadMenuLevel()
 {
     bool res = ReadLevel("MENULEVEL.txt");
     g_PauseHandler.m_IsMenu = true;
-    g_Game.InitTextures();
+    g_Game.InitAssets();
     return res;
 }
 
@@ -251,6 +260,6 @@ bool CLevelHandler::LoadLevelNum(unsigned int lvl)
     char filename[256] = {'\0'};
     snprintf(filename, sizeof(filename), "%u.txt", lvl);
     bool res = ReadLevel(filename);
-    g_Game.InitTextures();
+    g_Game.InitAssets();
     return res;
 }

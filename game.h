@@ -51,7 +51,7 @@ class CGame
     void UpdateEditorCamera();
     void UpdateEditorInput();
 
-    bool InitTextures();
+    bool InitAssets();
 
     public:
 
@@ -62,6 +62,9 @@ class CGame
     std::unordered_map<unsigned int, Texture2D> m_Textures;
     std::vector<unsigned int> m_NeededSounds;
     std::unordered_map<unsigned int, Sound> m_Sounds;
+    Music m_Music;
+    bool m_HasMusic = false;
+    unsigned int m_MusicID = 0;
 
     //editor
     bool m_EditorMode = false;

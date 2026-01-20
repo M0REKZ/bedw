@@ -48,6 +48,9 @@ int main(int argc, char** argv)
     g_Globals.Init();
     while(!exit)
     {
+        if(g_Game.m_HasMusic)
+            UpdateMusicStream(g_Game.m_Music);
+
         if(IsWindowResized())
         {
             g_Globals.m_CurrentWindowWidth = GetScreenWidth();
