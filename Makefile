@@ -12,9 +12,11 @@ SRC = \
 	entities/killer_bot.cpp \
 	entities/killer_drone.cpp \
 	entities/menu_camera.cpp \
+	entities/victim.cpp \
 	collision.cpp \
 	config_handler.cpp \
 	level_handler.cpp \
+	level_script_handler.cpp \
 	pause_handler.cpp \
 	helper_fs.cpp \
 	helper_ui.cpp

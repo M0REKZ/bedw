@@ -95,6 +95,11 @@ void CPauseHandler::HandleMenuOption(unsigned int Page, int Option)
     }
     if(Page == 1)
     {
+        if(Option == 0) //Continue
+        {
+            g_LevelHandler.LoadLevelNum(g_ConfigHandler.m_GameProgress.m_CurrentLevelNumber);
+            return;
+        }
         if(Option == 1) //New game
         {
             g_LevelHandler.LoadFirstLevel();

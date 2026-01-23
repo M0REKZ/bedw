@@ -8,6 +8,7 @@
 class CPlayer : public IEntity
 {
     void DoAttack();
+    void CollectPickups();
 
     public:
 

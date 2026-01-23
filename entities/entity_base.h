@@ -16,6 +16,7 @@ class IEntity
         ENTTYPE_NONE,
         ENTTYPE_PLAYER,
         ENTTYPE_ENEMY,
+        ENTTYPE_PICKUP,
     };
     
     Vector3 m_Pos;

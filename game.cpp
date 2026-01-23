@@ -15,6 +15,7 @@
 #include <pause_handler.h>
 #include "helper_fs.h"
 #include <config_handler.h>
+#include <level_script_handler.h>
 
 CGame g_Game;
 
@@ -1149,6 +1150,8 @@ bool CGame::InitAssets()
         }
     }
 
+    g_LevelScriptHandler.PostLoad();
+
     return true;
 }
 
@@ -1291,6 +1294,8 @@ void CGame::Update()
 
     ValidateActiveSectors(m_pCurrentSector);
 
+    g_LevelScriptHandler.PreUpdate();
+
     if(m_pEntities)
     {
         for(int i = 0; i < m_NumEntities; i++)
@@ -1301,6 +1306,8 @@ void CGame::Update()
             }
         }
     }
+
+    g_LevelScriptHandler.PostUpdate();
 }
 
 void CGame::Render()

@@ -54,6 +54,29 @@ void CPlayer::DoAttack()
     m_Frame = 10;
 }
 
+void CPlayer::CollectPickups()
+{
+    IEntity * pEntity = nullptr;
+    for(int i = 0; i < g_Game.NumEntities(); i++)
+    {
+        if((pEntity = g_Game.GetEntity(i)))
+        {
+            if(pEntity->m_Type == EntType::ENTTYPE_PICKUP)
+            {
+                if(pEntity->m_Health <= 0)
+                    continue;
+
+                float distance = PointDistance3D(pEntity->m_Pos, m_Pos);
+
+                if(distance < pEntity->m_Radius)
+                {
+                    pEntity->m_Health = 0;
+                }
+            }
+        }
+    }
+}
+
 CPlayer::CPlayer(Vector3 Pos)
 {
     m_Type = EntType::ENTTYPE_PLAYER;
@@ -244,6 +267,8 @@ void CPlayer::Update()
     {
         m_Walking = 0;
     }
+
+    CollectPickups();
 }
 
 void CPlayer::Render()
