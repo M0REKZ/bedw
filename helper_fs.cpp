@@ -29,7 +29,12 @@ const char *GetSavePath()
     const char * home = getenv("HOME");
     if(!home)
         return nullptr;
+    #if defined(__APPLE__)
     snprintf(path, sizeof(path), "%s/Library/Application Support/BEDW", home);
-
+    #elif defined(__linux__)
+    snprintf(path, sizeof(path), "%s/.local/share/BEDW", home);
+    #else
+    #error unsupported platform
+    #endif
     return path;
 }
