@@ -2,6 +2,7 @@
 #include "killer_bot.h"
 #include <globals.h>
 #include <collision.h>
+#include <cmath>
 
 ENTITY_CREATOR_FUNC(CKillerBot::KillerBotCreator)
 {

@@ -1,5 +1,6 @@
 # Copyright (c) Benjamín Gajardo (also known as +KZ)
 
+CXX = g++
 CFLAGS = `pkg-config --cflags raylib` -I ${CURDIR} -g
 LDFLAGS = `pkg-config --libs raylib`
 SRC = \

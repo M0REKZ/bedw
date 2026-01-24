@@ -2,6 +2,7 @@
 #include "killer_drone.h"
 #include <globals.h>
 #include <collision.h>
+#include <cmath>
 
 ENTITY_CREATOR_FUNC(CKillerDrone::KillerDroneCreator)
 {

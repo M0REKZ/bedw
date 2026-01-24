@@ -9,6 +9,7 @@
 #include <entities/player.h>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <input_handler.h>
 #include <level_handler.h>
 #include <algorithm>

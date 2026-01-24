@@ -5,6 +5,7 @@
 #include <raylib.h>
 #include <fstream>
 #include <game.h>
+#include <cstring>
 #include <entities/entity_base.h>
 #include <pause_handler.h>
 #include <config_handler.h>

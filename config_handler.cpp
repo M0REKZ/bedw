@@ -1,6 +1,7 @@
 // Copyright (c) Benjamín Gajardo (also known as +KZ)
 #include "config_handler.h"
 #include <string>
+#include <cstring>
 #include <fstream>
 #include <helper_fs.h>
 

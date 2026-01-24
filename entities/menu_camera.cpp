@@ -5,6 +5,7 @@
 #include <input_handler.h>
 #include <globals.h>
 #include <pause_handler.h>
+#include <cmath>
 
 ENTITY_CREATOR_FUNC(CMenuCamera::MenuCameraCreator)
 {
