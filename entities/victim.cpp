@@ -30,6 +30,9 @@ void CVictim::Update()
 
 void CVictim::Render()
 {
+    if(!m_pMySector->m_Active)
+        return;
+
     if(m_Health <= 0)
         return;
 

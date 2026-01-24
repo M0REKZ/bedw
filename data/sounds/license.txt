@@ -11,3 +11,4 @@ NOTE: some assets were modified for this game as the asset license allowed it
 "5.mp3" License: CC0 (from https://freesound.org/people/mad-monkey/sounds/66692/)
 "6.mp3" License: CC0 (from https://freesound.org/people/GiocoSound/sounds/421143/)
 "7.mp3" License: CC0 (from https://freesound.org/people/Kneeling/sounds/643869/)
+"8.mp3" by DrinkingWindGames. License: CC BY 4.0 (https://freesound.org/people/DrinkingWindGames/sounds/463731/)

@@ -92,6 +92,8 @@ class CGame
     int m_EditorNeighSec = 0;
     unsigned int m_EditorSelectedEntity = 0;
 
+    float m_DeathLineY = -20.f;
+
     bool Init();
     void Destroy();
     void Update();

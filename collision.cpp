@@ -34,16 +34,18 @@ bool IsPointInsideTriangle(Vector2 p, Vector2 p0, Vector2 p1, Vector2 p2)
     return d == 0 || (d < 0) == (s + t <= 0);
 }
 
+// https://stackoverflow.com/a/2922778
+// before this was using IsPointInsideTriangle()....
 bool IsPointInsideSector(CSector * pSector, Vector2 Point)
 {
-    for(int i = 1; i < pSector->m_NumVertices; i++)
+    int i, j, c = 0;
+    for(i = 0, j = pSector->m_NumVertices-1; i < pSector->m_NumVertices; j = i++)
     {
-        if(IsPointInsideTriangle(Point ,pSector->m_pVertices[0], pSector->m_pVertices[i], pSector->m_pVertices[(i + 1) % pSector->m_NumVertices]))
-        {
-            return true;
-        }
+        if(((pSector->m_pVertices[i].y > Point.y) != (pSector->m_pVertices[j].y > Point.y)) &&
+            (Point.x < (pSector->m_pVertices[j].x - pSector->m_pVertices[i].x) * (Point.y - pSector->m_pVertices[i].y) / (pSector->m_pVertices[j].y - pSector->m_pVertices[i].y) + pSector->m_pVertices[i].x))
+        c = !c;
     }
-    return false;
+    return c;
 }
 
 float GetAngleBetweenPoints(Vector2 p1, Vector2 p2)
@@ -143,19 +145,19 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOut
                 {
                     RadiusColDir.x *= -1.f;
                     RadiusColDir.y *= -1.f;
-                    if(Pos.y <= pSector->m_Ceiling || Pos.y >= pSector->m_Floor)
+                    if(Pos.y - Radius <= pSector->m_Ceiling || Pos.y + Radius >= pSector->m_Floor)
                     {
                         if(IsPointInsideSector(pSector, {Pos.x, Pos.z}))
                         {
-                            if(Pos.y > pSector->m_Floor)
+                            float midalt = (pSector->m_Floor + pSector->m_Ceiling) / 2;
+                            if(Pos.y > midalt)
                             {
                                 DoFloorCollision(Pos, InOutVel, Radius, pSector, (pGroundedState && *pGroundedState) ? nullptr : pGroundedState);
                             }
-                            else if(Pos.y < pSector->m_Ceiling)
+                            else if(Pos.y < midalt)
                             {
                                 DoCeilingCollision(Pos, InOutVel, Radius, pSector);
                             }
-                            
                         }
                     }
                 }

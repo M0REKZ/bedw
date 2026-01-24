@@ -35,6 +35,11 @@ CKillerDrone::CKillerDrone(Vector3 Pos, CSector * pSector)
 
 void CKillerDrone::Update()
 {
+    if(m_Pos.y < g_Game.m_DeathLineY)
+    {
+        m_Health = 0;
+    }
+
     if(m_PrevHealth > m_Health)
     {
         m_PrevHealth = m_Health;
@@ -180,6 +185,9 @@ void CKillerDrone::Update()
 
 void CKillerDrone::Render()
 {
+    if(!m_pMySector->m_Active)
+        return;
+
     if(!m_Grounded)
     {
         m_Frame = 7;

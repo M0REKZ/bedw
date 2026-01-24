@@ -73,7 +73,10 @@ int main(int argc, char** argv)
         EndDrawing();
 
         if(WindowShouldClose() || g_Game.m_Exit)
+        {
+            g_Game.Destroy();
             exit = true;
+        }
     }
 
     CloseAudioDevice();

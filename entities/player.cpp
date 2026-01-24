@@ -103,6 +103,11 @@ CPlayer::CPlayer(Vector3 Pos)
 
 void CPlayer::Update()
 {
+    if(m_Pos.y < g_Game.m_DeathLineY)
+    {
+        m_Health = 0;
+    }
+
     if(m_PrevHealth > m_Health)
     {
         m_Frame = 9;

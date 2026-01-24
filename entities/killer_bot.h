@@ -5,6 +5,19 @@
 
 #include "entity_base.h"
 
+enum KillerBotType
+{
+    KILLERBOT_SLICE,
+    KILLERBOT_SAW,
+};
+
+class CSawBot
+{
+    public:
+    static ENTITY_ID(5);
+    static ENTITY_CREATOR_FUNC(SawBotCreator);
+};
+
 class CKillerBot : public IEntity
 {
     public:
@@ -19,6 +32,10 @@ class CKillerBot : public IEntity
     int m_AttackFrame = 0;
     int m_PrevHealth;
     bool m_PlayedDeathSound = false;
+    bool m_EdgeSmart = false;
+    bool m_FutureGrounded = false;
+
+    KillerBotType m_BotType = KILLERBOT_SLICE;
 
     CSector * m_pMySector = nullptr;
 
@@ -27,13 +44,13 @@ class CKillerBot : public IEntity
 
     Vector3 m_WantedVel = {0.f,0.f};
 
-    CKillerBot(Vector3 Pos, CSector * pSector);
+    CKillerBot(Vector3 Pos, CSector * pSector, KillerBotType BotType = KILLERBOT_SLICE);
 
     virtual void Update() override;
     virtual void Render() override;
     virtual int GetSectorID() override;
     virtual void SetSectorID(int id) override;
-    virtual unsigned int GetEntityID() override { return SGetEntityID(); }
+    virtual unsigned int GetEntityID() override;
 };
 
 #endif
