@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+  build-app:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Prepare Linux
+        run: |
+          sudo apt-get update -y
+          sudo apt install build-essential git
+          sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev cmake
+
+      - name: Building and Installing Raylib
+        run: |
+          git clone https://github.com/raysan5/raylib.git raylib
+          cd raylib
+          mkdir build && cd build
+          cmake ..
+          make
+          sudo make install
+          sudo ldconfig
+
+      - name: Build BEDW
+        run: |
+          make
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BEDW-ubuntu-22.04
+          path: build
+
+
