@@ -24,9 +24,13 @@ SRC = \
 OBJ = $(SRC:%.cpp=%.o)
 DEP = $(SRC:%.cpp=%.d)
 
-all: bedw
+all: ./build/bedw ./build/data
 
-bedw: $(OBJ)
+./build/data: data
+	cp -r ./data $@
+
+./build/bedw: $(OBJ)
+	mkdir -p build
 	${CXX} -o $@ $^ ${LDFLAGS}
 
 %.o: %.cpp
@@ -35,7 +39,7 @@ bedw: $(OBJ)
 -include $(DEP)
 
 clean:
-	rm -f bedw
+	rm -r -f build
 	rm -f *.o
 	rm -f *.d
 	rm -f entities/*.o
