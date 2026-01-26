@@ -53,7 +53,8 @@ jobs:
           mkdir build && cd build
           cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON ..
           make
-          make install
+          mkdir ../../lib
+          mv ./libraylib.a ../../lib/libraylib.a
       
       - name: Build BEDW
         run: |

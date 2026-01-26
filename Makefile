@@ -15,10 +15,15 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 CXX = g++
-CFLAGS = `pkg-config --static --cflags raylib` -I ${CURDIR}/src -g
-LDFLAGS = `pkg-config --static --libs raylib`
 
-ifneq ($(OS),Windows_NT)
+ifeq ($(OS),Windows_NT)
+#	Requires adding libraylib.a in a folder named "lib"
+	CFLAGS = -I ${CURDIR}/src -g
+	LDFLAGS = -lraylib -L ./lib/
+else
+	CFLAGS = `pkg-config --static --cflags raylib` -I ${CURDIR}/src -g
+	LDFLAGS = `pkg-config --static --libs raylib`
+
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
 		LDFLAGS += -framework Cocoa -framework OpenGL -framework IOKit
