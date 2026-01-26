@@ -51,13 +51,13 @@ jobs:
           git clone https://github.com/raysan5/raylib.git raylib
           cd raylib
           mkdir build && cd build
-          i686-w64-mingw32-cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON ..
-          i686-w64-mingw32-make
-          sudo i686-w64-mingw32-make install
+          cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON ..
+          make
+          make install
       
       - name: Build BEDW
         run: |
-          i686-w64-mingw32-make
+          make
       
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
