@@ -54,7 +54,7 @@ jobs:
           cmake -G "MinGW Makefiles" -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
           make
           mkdir ../../lib
-          mv ./libraylib.a ../../lib/libraylib.a
+          mv ./raylib/libraylib.a ../../lib/libraylib.a
       
       - name: Build BEDW
         run: |
