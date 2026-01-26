@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 CXX = g++
-CFLAGS = `pkg-config --static --cflags raylib` -I ${CURDIR} -g
+CFLAGS = `pkg-config --static --cflags raylib` -I ${CURDIR}/src -g
 LDFLAGS = `pkg-config --static --libs raylib`
 
 ifneq ($(OS),Windows_NT)
@@ -26,23 +26,23 @@ ifneq ($(OS),Windows_NT)
 endif
 
 SRC = \
-	main.cpp \
-	input_handler.cpp \
-	game.cpp \
-	globals.cpp \
-	entities/entity_list.cpp \
-	entities/player.cpp \
-	entities/killer_bot.cpp \
-	entities/killer_drone.cpp \
-	entities/menu_camera.cpp \
-	entities/victim.cpp \
-	collision.cpp \
-	config_handler.cpp \
-	level_handler.cpp \
-	level_script_handler.cpp \
-	pause_handler.cpp \
-	helper_fs.cpp \
-	helper_ui.cpp
+	src/main.cpp \
+	src/input_handler.cpp \
+	src/game.cpp \
+	src/globals.cpp \
+	src/entities/entity_list.cpp \
+	src/entities/player.cpp \
+	src/entities/killer_bot.cpp \
+	src/entities/killer_drone.cpp \
+	src/entities/menu_camera.cpp \
+	src/entities/victim.cpp \
+	src/collision.cpp \
+	src/config_handler.cpp \
+	src/level_handler.cpp \
+	src/level_script_handler.cpp \
+	src/pause_handler.cpp \
+	src/helper_fs.cpp \
+	src/helper_ui.cpp
 OBJ = $(SRC:%.cpp=%.o)
 DEP = $(SRC:%.cpp=%.d)
 
@@ -62,10 +62,10 @@ all: ./build/bedw ./build/data
 
 clean:
 	rm -r -f build
-	rm -f *.o
-	rm -f *.d
-	rm -f entities/*.o
-	rm -f entities/*.d
+	rm -f src/*.o
+	rm -f src/*.d
+	rm -f src/entities/*.o
+	rm -f src/entities/*.d
 	rm -f lib/*.o
 	rm -f lib/*.d
 
