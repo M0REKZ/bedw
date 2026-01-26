@@ -38,6 +38,11 @@ jobs:
   build-windows:
     runs-on: windows-2022
     steps:
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v3
+        with:
+          platform: x86
+
       - name: Checkout
         uses: actions/checkout@v4
       
