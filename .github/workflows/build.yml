@@ -51,7 +51,7 @@ jobs:
           git clone --depth 1 https://github.com/raysan5/raylib.git raylib
           cd raylib
           mkdir build && cd build
-          cmake -G mingw32-make -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
+          cmake -G "MinGW Makefiles" -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
           make
           mkdir ../../lib
           mv ./libraylib.a ../../lib/libraylib.a
