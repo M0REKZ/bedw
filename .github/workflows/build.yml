@@ -63,7 +63,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BEDW-ubuntu-22.04
+          name: BEDW-windows-32
           path: build
 
 
