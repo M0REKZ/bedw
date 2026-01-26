@@ -18,10 +18,10 @@ jobs:
 
       - name: Building and Installing Raylib
         run: |
-          git clone -depth 1 https://github.com/raysan5/raylib.git raylib
+          git clone --depth 1 https://github.com/raysan5/raylib.git raylib
           cd raylib
           mkdir build && cd build
-          cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON ..
+          cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
           make
           sudo make install
           sudo ldconfig
@@ -48,10 +48,10 @@ jobs:
       
       - name: Building and Installing Raylib
         run: |
-          git clone -depth 1 https://github.com/raysan5/raylib.git raylib
+          git clone --depth 1 https://github.com/raysan5/raylib.git raylib
           cd raylib
           mkdir build && cd build
-          cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON ..
+          cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
           make
           mkdir ../../lib
           mv ./libraylib.a ../../lib/libraylib.a
