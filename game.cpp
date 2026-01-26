@@ -55,6 +55,7 @@ void CGame::ValidateActiveSectors(CSector *pCurrentSector, int recursionamount)
 
 void CGame::RenderSectors()
 {
+    BeginMode3D(g_Globals.m_RaylibCamera);
     for(int i = 0; i < m_NumSectors; i++)
     {
 
@@ -62,8 +63,6 @@ void CGame::RenderSectors()
         {
             continue;
         }
-
-        BeginMode3D(g_Globals.m_RaylibCamera);
         rlBegin(RL_TRIANGLES);
 
         // walls
@@ -229,9 +228,7 @@ void CGame::RenderSectors()
         }
 
         rlEnd();
-        EndMode3D();
 
-        BeginMode3D(g_Globals.m_RaylibCamera);
         rlBegin(RL_TRIANGLES);
 
         if(m_pSectors[i].m_CeilingTextureID != 10)
@@ -285,8 +282,8 @@ void CGame::RenderSectors()
         }
 
         rlEnd();
-        EndMode3D();
     }
+    EndMode3D();
 }
 
 void CGame::RenderSectors2D(CSector *pSelectedSector)

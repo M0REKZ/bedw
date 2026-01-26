@@ -15,8 +15,16 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 CXX = g++
-CFLAGS = `pkg-config --cflags raylib` -I ${CURDIR} -g
-LDFLAGS = `pkg-config --libs raylib`
+CFLAGS = `pkg-config --static --cflags raylib` -I ${CURDIR} -g
+LDFLAGS = `pkg-config --static --libs raylib`
+
+ifneq ($(OS),Windows_NT)
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Darwin)
+		LDFLAGS += -framework Cocoa -framework OpenGL -framework IOKit
+    endif
+endif
+
 SRC = \
 	main.cpp \
 	input_handler.cpp \

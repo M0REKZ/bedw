@@ -21,7 +21,7 @@ jobs:
           git clone https://github.com/raysan5/raylib.git raylib
           cd raylib
           mkdir build && cd build
-          cmake ..
+          cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON ..
           make
           sudo make install
           sudo ldconfig
