@@ -53,11 +53,11 @@ all: \
 ./build/data
 
 ./3rdparty/raylib/build/raylib/libraylib.a: ./3rdparty/raylib/
-	cd ./3rdparty/raylib/; \
-	mkdir build; \
-	cd build; \
+	cd ./3rdparty/raylib/; && \
+	mkdir build; && \
+	cd build; && \
 	cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
-	cd ./3rdparty/raylib/build; \
+	cd ./3rdparty/raylib/build; && \
 	$(MAKE)
 
 ./build/data: data
