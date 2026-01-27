@@ -16,16 +16,6 @@ jobs:
           sudo apt install build-essential git
           sudo apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev cmake
 
-      - name: Building and Installing Raylib
-        run: |
-          git clone --depth 1 https://github.com/raysan5/raylib.git raylib
-          cd raylib
-          mkdir build && cd build
-          cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
-          make
-          sudo make install
-          sudo ldconfig
-
       - name: Build BEDW
         run: |
           make
@@ -45,16 +35,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Building and Installing Raylib
-        run: |
-          git clone --depth 1 https://github.com/raysan5/raylib.git raylib
-          cd raylib
-          mkdir build && cd build
-          cmake -G "MinGW Makefiles" -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
-          make
-          mkdir ../../lib
-          mv ./raylib/libraylib.a ../../lib/libraylib.a
       
       - name: Build BEDW
         run: |
