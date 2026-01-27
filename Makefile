@@ -16,14 +16,10 @@
 
 CXX = g++
 
-ifeq ($(OS),Windows_NT)
-#	Requires adding libraylib.a in a folder named "lib"
-	CFLAGS = -I ${CURDIR}/src -g
-	LDFLAGS = -lraylib -L ./lib/
-else
-	CFLAGS = `pkg-config --static --cflags raylib` -I ${CURDIR}/src -g
-	LDFLAGS = `pkg-config --static --libs raylib`
+CFLAGS = -I ${CURDIR}/src -I ${CURDIR}/3rdparty/raylib/build/raylib/include -g
+LDFLAGS = -lraylib -L ./3rdparty/raylib/build/raylib/
 
+ifneq ($(OS),Windows_NT)
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
 		LDFLAGS += -framework Cocoa -framework OpenGL -framework IOKit
@@ -51,7 +47,18 @@ SRC = \
 OBJ = $(SRC:%.cpp=%.o)
 DEP = $(SRC:%.cpp=%.d)
 
-all: ./build/bedw ./build/data
+all: \
+./3rdparty/raylib/build/raylib/libraylib.a \
+./build/bedw \
+./build/data
+
+./3rdparty/raylib/build/raylib/libraylib.a: ./3rdparty/raylib/
+	cd ./3rdparty/raylib/; \
+	mkdir build; \
+	cd build; \
+	cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
+	cd ./3rdparty/raylib/build; \
+	$(MAKE)
 
 ./build/data: data
 	cp -r ./data $@
