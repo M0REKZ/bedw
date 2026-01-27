@@ -19,7 +19,9 @@ CXX = g++
 CFLAGS = -I ${CURDIR}/src -I ${CURDIR}/3rdparty/raylib/build/raylib/include -g
 LDFLAGS = -lraylib -L ./3rdparty/raylib/build/raylib/
 
-ifneq ($(OS),Windows_NT)
+ifeq ($(OS),Windows_NT)
+	CMAKE_FLAGS = -G "MinGW Makefiles"
+else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
 		LDFLAGS += -framework Cocoa -framework OpenGL -framework IOKit
@@ -56,7 +58,7 @@ all: \
 	cd ./3rdparty/raylib/ && \
 	mkdir build && \
 	cd build && \
-	cmake -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
+	cmake $(CMAKE_FLAGS) -DCUSTOMIZE_BUILD:BOOL=ON -DSUPPORT_CUSTOM_FRAME_CONTROL:BOOL=ON -DBUILD_EXAMPLES=OFF -DBUILD_GAMES=OFF ..
 	cd ./3rdparty/raylib/build && \
 	$(MAKE)
 
