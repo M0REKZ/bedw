@@ -1187,7 +1187,11 @@ void CGame::SetNeededSound(unsigned int id)
 
 bool CGame::Init()
 {
-    CreateSavePath();
+    if(!CreateSavePath())
+    {
+        printf("COULD NOT CREATE SAVE PATH!!\n");
+        return false;
+    }
     g_ConfigHandler.Init();
     InitEntityCreatorList();
 

@@ -20,6 +20,17 @@
 #include <cstdio>
 #include <cstdlib>
 
+#if defined(__APPLE__)
+    #include <limits.h>
+#elif defined(__linux__)
+    #include <limits.h>
+#elif defined(WIN32)
+    #include <Shlobj.h>
+    #include <Shlwapi.h>
+#else
+    #error unsupported platform
+#endif
+
 bool CreateSavePath()
 {
     const char * pPath = GetSavePath();
@@ -40,17 +51,39 @@ bool CreateSavePath()
 
 const char *GetSavePath()
 {
-    static char path[1024] = {'\0'};
+    #if defined(__APPLE__)
 
-    const char * home = getenv("HOME");
+    static char path[PATH_MAX] = {'\0'};
+
+    const char * home = getenv("HOME"); //TODO: dont use HOME
     if(!home)
         return nullptr;
-    #if defined(__APPLE__)
+
     snprintf(path, sizeof(path), "%s/Library/Application Support/BEDW", home);
+
     #elif defined(__linux__)
+
+    static char path[PATH_MAX] = {'\0'};
+
+    const char * home = getenv("HOME"); //TODO: dont use HOME
+    if(!home)
+        return nullptr;
+
     snprintf(path, sizeof(path), "%s/.local/share/BEDW", home);
-    #else
-    #error unsupported platform
+
+    #elif defined(WIN32)
+
+    static char path[MAX_PATH] = {'\0'};
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, path))) 
+    {
+        PathAppend(path, TEXT("BEDW"));
+    }
+    else
+    {
+        return nullptr;
+    }
+
     #endif
+
     return path;
 }
