@@ -31,9 +31,4 @@ bool GetWindowsProgramFilesPath(char *pOut, int BufferSize)
     return SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, pOut));
 }
 
-const unsigned int GetWindowsMaxPath()
-{
-    return MAX_PATH;
-}
-
 #endif

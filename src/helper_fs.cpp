@@ -72,10 +72,12 @@ const char *GetSavePath()
 
     #elif defined(WIN32)
 
-    const unsigned int maxpath = GetWindowsMaxPath();
-    static char path[maxpath] = {'\0'};
-    char home[maxpath] = {'\0'};
-    if(GetWindowsProgramFilesPath(home, maxpath)) 
+    // MAX_PATH on windows is 260, im using that number directly instead of including MAX_PATH header
+    // since including both raylib.h and windows.h in a same file has conflicts............ :/
+    // anyways, MAX_PATH limit is checked in platform/windows.cpp file
+    static char path[260] = {'\0'};
+    char home[260] = {'\0'};
+    if(GetWindowsProgramFilesPath(home, 260)) 
     {
         snprintf(path, sizeof(path), "%s\\BEDW", home);
     }
