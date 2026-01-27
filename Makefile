@@ -22,6 +22,7 @@ LDFLAGS = -lraylib -L ./3rdparty/raylib/build/raylib/
 ifeq ($(OS),Windows_NT)
 	EXE_NAME = bedw.exe
 	CMAKE_FLAGS = -G "MinGW Makefiles"
+	LDFLAGS += -lgdi32 -lwinmm
 else
 	EXE_NAME = bedw
     UNAME_S := $(shell uname -s)
