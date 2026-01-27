@@ -23,11 +23,17 @@
 #include <Shlobj.h>
 #include <Shlwapi.h>
 
-bool GetProgramFilesPath(char *pOut, int BufferSize)
+bool GetWindowsProgramFilesPath(char *pOut, int BufferSize)
 {
     if(BufferSize < MAX_PATH || !pOut)
         return false;
 
     return SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, pOut));
 }
+
+const unsigned int GetWindowsMaxPath()
+{
+    return MAX_PATH;
+}
+
 #endif

@@ -20,8 +20,10 @@ CFLAGS = -I ${CURDIR}/src -I ${CURDIR}/3rdparty/raylib/build/raylib/include -g
 LDFLAGS = -lraylib -L ./3rdparty/raylib/build/raylib/
 
 ifeq ($(OS),Windows_NT)
+	EXE_NAME = bedw.exe
 	CMAKE_FLAGS = -G "MinGW Makefiles"
 else
+	EXE_NAME = bedw
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
 		LDFLAGS += -framework Cocoa -framework OpenGL -framework IOKit
@@ -52,7 +54,7 @@ DEP = $(SRC:%.cpp=%.d)
 
 all: \
 ./3rdparty/raylib/build/raylib/libraylib.a \
-./build/bedw \
+./build/$(EXE_NAME) \
 ./build/data
 
 ./3rdparty/raylib/build/raylib/libraylib.a: ./3rdparty/raylib/
@@ -66,7 +68,7 @@ all: \
 ./build/data: data
 	cp -r ./data $@
 
-./build/bedw: $(OBJ)
+./build/$(EXE_NAME): $(OBJ)
 	mkdir -p build
 	${CXX} -o $@ $^ ${LDFLAGS}
 

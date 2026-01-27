@@ -72,9 +72,10 @@ const char *GetSavePath()
 
     #elif defined(WIN32)
 
-    static char path[MAX_PATH] = {'\0'};
-    char home[PATH_MAX] = {'\0'};
-    if(GetProgramFilesPath(home, MAX_PATH)) 
+    const unsigned int maxpath = GetWindowsMaxPath();
+    static char path[maxpath] = {'\0'};
+    char home[maxpath] = {'\0'};
+    if(GetWindowsProgramFilesPath(home, maxpath)) 
     {
         snprintf(path, sizeof(path), "%s\\BEDW", home);
     }

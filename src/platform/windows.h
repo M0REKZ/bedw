@@ -22,7 +22,9 @@
 
 //This is to avoid conflicts with raylib.h, dont #include that file
 
-bool GetProgramFilesPath(char * pOut, int BufferSize);
+bool GetWindowsProgramFilesPath(char * pOut, int BufferSize);
+
+const unsigned int GetWindowsMaxPath();
 
 #endif
 
