@@ -83,6 +83,8 @@ clean:
 	rm -f src/*.d
 	rm -f src/entities/*.o
 	rm -f src/entities/*.d
+	rm -f src/platform/*.o
+	rm -f src/platform/*.d
 	rm -f lib/*.o
 	rm -f lib/*.d
 
