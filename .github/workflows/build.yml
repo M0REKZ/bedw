@@ -30,13 +30,15 @@ jobs:
   build-windows:
     runs-on: windows-2022
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v3
         with:
           platform: x86
-
-      - name: Checkout
-        uses: actions/checkout@v4
       
       - name: Build BEDW
         run: |
