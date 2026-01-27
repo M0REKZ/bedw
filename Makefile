@@ -44,6 +44,7 @@ SRC = \
 	src/level_handler.cpp \
 	src/level_script_handler.cpp \
 	src/pause_handler.cpp \
+	src/platform/windows.cpp \
 	src/helper_fs.cpp \
 	src/helper_ui.cpp
 OBJ = $(SRC:%.cpp=%.o)

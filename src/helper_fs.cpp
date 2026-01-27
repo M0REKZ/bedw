@@ -25,8 +25,7 @@
 #elif defined(__linux__)
     #include <limits.h>
 #elif defined(WIN32)
-    #include <Shlobj.h>
-    #include <Shlwapi.h>
+    #include <platform/windows.h>
 #else
     #error unsupported platform
 #endif
@@ -74,9 +73,10 @@ const char *GetSavePath()
     #elif defined(WIN32)
 
     static char path[MAX_PATH] = {'\0'};
-    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, 0, path))) 
+    char home[PATH_MAX] = {'\0'};
+    if(GetProgramFilesPath(home, MAX_PATH)) 
     {
-        PathAppend(path, TEXT("BEDW"));
+        snprintf(path, sizeof(path), "%s\\BEDW", home);
     }
     else
     {
