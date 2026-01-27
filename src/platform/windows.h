@@ -24,7 +24,7 @@
 
 bool GetWindowsProgramFilesPath(char * pOut, int BufferSize);
 
-const unsigned int GetWindowsMaxPath();
+static const unsigned int GetWindowsMaxPath();
 
 #endif
 
