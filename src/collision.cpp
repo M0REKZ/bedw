@@ -112,7 +112,109 @@ float GetSlopeAltitude(Vector2 Point1, Vector2 Point2, Vector2 HighestPoint, flo
     return Multiplier * PointDistance(ClosestPoint, CheckingPoint);
 }
 
-void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector, bool * pGroundedState)
+bool DoRaycast(Vector2 From, Vector2 &InOutTo, float Altitude, float Step, CSector **ppInOutSector, CSector * pIgnoreSector)
+{
+    CSector *pCurrentSector = ppInOutSector ? *ppInOutSector : g_Game.GetCurrentSector();
+
+    // first intersect inverted sectors
+    bool intersected = false;
+    for(int vertid = 0; vertid < pCurrentSector->m_NumVertices; vertid++)
+    {
+        if(!pCurrentSector->m_pNeighbors[vertid])
+            continue;
+
+        //pIgnoreSector is used for previous checked sector
+        if(pCurrentSector->m_pNeighbors[vertid] == pIgnoreSector)
+            continue;
+
+        if(pCurrentSector->m_pNeighbors[vertid]->m_Floor <= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
+            continue;
+        
+        for(int neighvert = 0; neighvert < pCurrentSector->m_pNeighbors[vertid]->m_NumVertices; neighvert++)
+        {
+            Vector2 Intersection;
+            if(IntersectLines(From, InOutTo,
+                pCurrentSector->m_pNeighbors[vertid]->m_pVertices[neighvert],
+                pCurrentSector->m_pNeighbors[vertid]->m_pVertices[(neighvert + 1) % pCurrentSector->m_pNeighbors[vertid]->m_NumVertices],
+                Intersection))
+            {
+                // check altitude
+                if(Altitude + (Step * PointDistance(From, Intersection)) <= pCurrentSector->m_pNeighbors[vertid]->m_Floor &&
+                    Altitude + (Step * PointDistance(From, Intersection)) >= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
+                {
+                    if(ppInOutSector)
+                        *ppInOutSector = pCurrentSector;
+                    InOutTo = Intersection;
+                    intersected = true;
+                    break;
+                }
+            }
+        }
+
+        if(intersected)
+            break;
+    }
+
+    // if didnt intersect, try with current sector
+    if(!intersected)
+    {
+        for(int vertid = 0; vertid < pCurrentSector->m_NumVertices; vertid++)
+        {
+            // wall is a neighbor, we need more checks
+            if(pCurrentSector->m_pNeighbors[vertid] &&  // now we ignore inverted sectors
+                pCurrentSector->m_pNeighbors[vertid]->m_Floor <= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
+            {
+                //pIgnoreSector is used for previous checked sector
+                if(pCurrentSector->m_pNeighbors[vertid] == pIgnoreSector)
+                    continue;
+
+                Vector2 Intersection;
+                if(IntersectLines(From, InOutTo,
+                    pCurrentSector->m_pVertices[vertid],
+                    pCurrentSector->m_pVertices[(vertid + 1) % pCurrentSector->m_NumVertices],
+                    Intersection))
+                {
+                    // check altitude, did we hit a wall before entering neighbor?
+                    if(Altitude + (Step * PointDistance(From, Intersection)) >= pCurrentSector->m_pNeighbors[vertid]->m_Floor &&
+                        Altitude + (Step * PointDistance(From, Intersection)) <= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
+                    {
+                        //no we didnt, now we repeat the process for the other sector
+                        CSector * pTemp = pCurrentSector->m_pNeighbors[vertid];
+                        intersected = DoRaycast(Intersection, InOutTo, Altitude, Step, &pTemp, pCurrentSector);
+                        if(ppInOutSector)
+                            *ppInOutSector = pCurrentSector;
+                        break;
+                    }
+                    else //yes we did
+                    {
+                        if(ppInOutSector)
+                            *ppInOutSector = pCurrentSector;
+                        InOutTo = Intersection;
+                        intersected = true;
+                        break;
+                    }
+                }
+            }
+            else // it is not a neighbor... or it is inverted, so we just intersect the wall
+            {
+                if(IntersectLines(From, InOutTo,
+                    pCurrentSector->m_pVertices[vertid],
+                    pCurrentSector->m_pVertices[(vertid + 1) % pCurrentSector->m_NumVertices],
+                    InOutTo))
+                {
+                    if(ppInOutSector)
+                        *ppInOutSector = pCurrentSector;
+                    intersected = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    return intersected;
+}
+
+void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector **ppInOutSector, bool *pGroundedState)
 {
     CSector *pPrevSector = nullptr;
     CSector *pNextSector = nullptr;
