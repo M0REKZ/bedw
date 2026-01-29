@@ -25,6 +25,7 @@ enum KillerBotType
 {
     KILLERBOT_SLICE,
     KILLERBOT_SAW,
+    KILLERBOT_SHOOT,
 };
 
 class CSawBot
@@ -33,6 +34,14 @@ class CSawBot
     static ENTITY_ID(5);
     static ENTITY_CREATOR_FUNC(SawBotCreator);
 };
+
+class CShootBot
+{
+    public:
+    static ENTITY_ID(6);
+    static ENTITY_CREATOR_FUNC(ShootBotCreator);
+};
+
 
 class CKillerBot : public IEntity
 {
@@ -50,6 +59,11 @@ class CKillerBot : public IEntity
     bool m_PlayedDeathSound = false;
     bool m_EdgeSmart = false;
     bool m_FutureGrounded = false;
+
+    //shootbot
+    int m_ShootDelay = 0;
+    Vector3 m_LaserShootedPos; //for rendering
+    bool m_RenderLaser = false;
 
     KillerBotType m_BotType = KILLERBOT_SLICE;
 

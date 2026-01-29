@@ -32,4 +32,5 @@ void InitEntityCreatorList()
     g_EntityCreatorList.insert({CKillerDrone::SGetEntityID(), &CKillerDrone::KillerDroneCreator});
     g_EntityCreatorList.insert({CVictim::SGetEntityID(), &CVictim::VictimCreator});
     g_EntityCreatorList.insert({CSawBot::SGetEntityID(), &CSawBot::SawBotCreator});
+    g_EntityCreatorList.insert({CShootBot::SGetEntityID(), &CShootBot::ShootBotCreator});
 }

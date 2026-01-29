@@ -112,7 +112,7 @@ float GetSlopeAltitude(Vector2 Point1, Vector2 Point2, Vector2 HighestPoint, flo
     return Multiplier * PointDistance(ClosestPoint, CheckingPoint);
 }
 
-bool DoRaycast(Vector2 From, Vector2 &InOutTo, float Altitude, float Step, CSector **ppInOutSector, CSector * pIgnoreSector)
+bool DoRaycast(Vector2 From, Vector2 &InOutTo, float &InOutAltitude, float Step, CSector **ppInOutSector, CSector * pIgnoreSector)
 {
     CSector *pCurrentSector = ppInOutSector ? *ppInOutSector : g_Game.GetCurrentSector();
 
@@ -139,12 +139,14 @@ bool DoRaycast(Vector2 From, Vector2 &InOutTo, float Altitude, float Step, CSect
                 Intersection))
             {
                 // check altitude
-                if(Altitude + (Step * PointDistance(From, Intersection)) <= pCurrentSector->m_pNeighbors[vertid]->m_Floor &&
-                    Altitude + (Step * PointDistance(From, Intersection)) >= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
+                float alt = InOutAltitude + (Step * PointDistance(From, Intersection));
+                if(alt <= pCurrentSector->m_pNeighbors[vertid]->m_Floor &&
+                    alt >= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
                 {
                     if(ppInOutSector)
                         *ppInOutSector = pCurrentSector;
                     InOutTo = Intersection;
+                    InOutAltitude = alt;
                     intersected = true;
                     break;
                 }
@@ -175,12 +177,15 @@ bool DoRaycast(Vector2 From, Vector2 &InOutTo, float Altitude, float Step, CSect
                     Intersection))
                 {
                     // check altitude, did we hit a wall before entering neighbor?
-                    if(Altitude + (Step * PointDistance(From, Intersection)) >= pCurrentSector->m_pNeighbors[vertid]->m_Floor &&
-                        Altitude + (Step * PointDistance(From, Intersection)) <= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling)
+                    float alt = InOutAltitude + (Step * PointDistance(From, Intersection));
+                    if(alt >= pCurrentSector->m_pNeighbors[vertid]->m_Floor &&
+                        alt <= pCurrentSector->m_pNeighbors[vertid]->m_Ceiling &&
+                        alt >= pCurrentSector->m_Floor &&
+                        alt <= pCurrentSector->m_Ceiling)
                     {
                         //no we didnt, now we repeat the process for the other sector
                         CSector * pTemp = pCurrentSector->m_pNeighbors[vertid];
-                        intersected = DoRaycast(Intersection, InOutTo, Altitude, Step, &pTemp, pCurrentSector);
+                        intersected = DoRaycast(Intersection, InOutTo, InOutAltitude, Step, &pTemp, pCurrentSector);
                         if(ppInOutSector)
                             *ppInOutSector = pCurrentSector;
                         break;
@@ -190,6 +195,7 @@ bool DoRaycast(Vector2 From, Vector2 &InOutTo, float Altitude, float Step, CSect
                         if(ppInOutSector)
                             *ppInOutSector = pCurrentSector;
                         InOutTo = Intersection;
+                        InOutAltitude = alt;
                         intersected = true;
                         break;
                     }
@@ -204,12 +210,17 @@ bool DoRaycast(Vector2 From, Vector2 &InOutTo, float Altitude, float Step, CSect
                 {
                     if(ppInOutSector)
                         *ppInOutSector = pCurrentSector;
+                    InOutAltitude = InOutAltitude + (Step * PointDistance(From, InOutTo));
                     intersected = true;
                     break;
                 }
             }
         }
     }
+
+    //put the final altitude if we didnt hit anything
+    if(!intersected)
+        InOutAltitude = InOutAltitude + (Step * PointDistance(From, InOutTo));
 
     return intersected;
 }

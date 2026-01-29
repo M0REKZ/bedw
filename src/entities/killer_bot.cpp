@@ -30,6 +30,11 @@ ENTITY_CREATOR_FUNC(CSawBot::SawBotCreator)
     return new CKillerBot(Pos, pSector, KILLERBOT_SAW);
 }
 
+ENTITY_CREATOR_FUNC(CShootBot::ShootBotCreator)
+{
+    return new CKillerBot(Pos, pSector, KILLERBOT_SHOOT);
+}
+
 CKillerBot::CKillerBot(Vector3 Pos, CSector * pSector, KillerBotType BotType)
 {
     m_BotType = BotType;
@@ -60,6 +65,22 @@ CKillerBot::CKillerBot(Vector3 Pos, CSector * pSector, KillerBotType BotType)
         g_Game.SetNeededTexture(32); // also attack
 
         g_Game.SetNeededSound(8); // saw
+        break;
+    case KILLERBOT_SHOOT:
+        m_PrevHealth = m_Health = 16;
+        m_EdgeSmart = true;
+
+        g_Game.SetNeededTexture(38); // sawbot
+        g_Game.SetNeededTexture(37); // walk
+        g_Game.SetNeededTexture(36); // also walk
+        g_Game.SetNeededTexture(34); // attack
+        g_Game.SetNeededTexture(33); // also attack
+        g_Game.SetNeededTexture(35); // shoot!
+
+        g_Game.SetNeededSound(0); // slice
+        g_Game.SetNeededSound(9); // shoot!
+
+        m_ShootDelay = 60 * 4;
         break;
     
     default:
@@ -121,7 +142,45 @@ void CKillerBot::Update()
             m_Angle = GetAngleBetweenPoints({m_Pos.x,m_Pos.z}, {pPlayer->m_Pos.x, pPlayer->m_Pos.z});
             m_WantedVel.x = cosf(m_Angle) / 2.f;
             m_WantedVel.z = sinf(m_Angle) / 2.f;
-            if(!m_Attack)
+
+            if(m_BotType == KILLERBOT_SHOOT)
+            {
+                m_WantedVel.x /= 4.f;
+                m_WantedVel.z /= 4.f;
+
+                //shooting
+                m_ShootDelay--;
+                if(m_ShootDelay < 60)
+                {
+                    m_AttackFrame = 7;
+                    m_WantedVel.x = 0.f;
+                    m_WantedVel.z = 0.f;
+                }
+
+                if(m_ShootDelay <= 0)
+                {
+                    StopSound(g_Game.m_Sounds[9]);
+                    PlaySound(g_Game.m_Sounds[9]);
+
+                    m_LaserShootedPos = pPlayer->m_Pos;
+                    m_LaserShootedPos.y = m_Pos.y;
+                    Vector2 TempPos = {m_LaserShootedPos.x, m_LaserShootedPos.z};
+                    CSector * pTempInOutSector = m_pMySector;
+                    float Step = (pPlayer->m_Pos.y - m_Pos.y) / PointDistance({m_Pos.x, m_Pos.z}, TempPos);
+                    printf("%f\n",Step);
+                    if(!DoRaycast({m_Pos.x, m_Pos.z}, TempPos, m_LaserShootedPos.y, Step, &pTempInOutSector))
+                    {
+                        pPlayer->m_Health -= 50;
+                    }
+                    m_LaserShootedPos.x = TempPos.x;
+                    m_LaserShootedPos.z = TempPos.y;
+                    m_RenderLaser = true;
+                    m_ShootDelay = 60 * 4;
+                }
+            }
+
+            if(!m_Attack &&
+                !(m_BotType == KILLERBOT_SHOOT && m_ShootDelay < 60))
             {
                 m_AttackFrame = 0;
             }
@@ -134,7 +193,9 @@ void CKillerBot::Update()
                 {
                     m_Attack = true;
                     if(m_BotType == KILLERBOT_SLICE)
+                    {
                         m_AttackDelay = 20;
+                    }
                     else if(m_BotType == KILLERBOT_SAW)
                     {
                         if(m_AttackFrame == 0)
@@ -142,12 +203,17 @@ void CKillerBot::Update()
                         else
                             m_AttackDelay = 8;
                     }
+                    else if(m_BotType == KILLERBOT_SHOOT)
+                    {
+                        m_AttackDelay = 10;
+                    }
                 }
             }
             else if(!m_Attack)
             {
                 m_AttackFrame = 0;
             }
+            m_ShootDelay = 60 * 4;
             m_WantedVel = {0,0,0};
         }
 
@@ -159,7 +225,7 @@ void CKillerBot::Update()
             {
                 if(distance <= 2.f)
                 {
-                    if(m_BotType == KILLERBOT_SLICE)
+                    if(m_BotType == KILLERBOT_SLICE || m_BotType == KILLERBOT_SHOOT)
                     {
                         StopSound(g_Game.m_Sounds[0]);
                         PlaySound(g_Game.m_Sounds[0]);
@@ -185,6 +251,7 @@ void CKillerBot::Update()
         m_WantedVel = {0,0,0};
         m_Attack = false;
         m_AttackFrame = 0;
+        m_ShootDelay = 60 * 4;
     }
 
     if(m_EdgeSmart && !m_FutureGrounded)
@@ -285,7 +352,7 @@ void CKillerBot::Render()
 
     if(m_AttackFrame)
     {
-        if(m_AttackFrame == 1 || m_AttackFrame == 2)
+        if(m_AttackFrame == 1 || m_AttackFrame == 2 || m_AttackFrame == 7)
             m_Frame = m_AttackFrame;
     }
     else if(std::abs(m_Vel.x) > 0.001f || std::abs(m_Vel.z) > 0.001f)
@@ -340,7 +407,31 @@ void CKillerBot::Render()
         else if(m_Frame == 2)
             DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[32], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
     }
+    else if(m_BotType == KILLERBOT_SHOOT)
+    {
+        if(m_Health <= 0)
+        { /*TODO: dead sprite*/}
+        else if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[38], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 4)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[37], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 6)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[36], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 1)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[34], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 2)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[33], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 7) //shoot!
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[35], {0,0,32.f,40.f}, m_Pos, {m_Radius*2*0.8f, m_Radius*2}, {255,255,255,255});
+    }
     EndShaderMode();
+
+    if(m_RenderLaser)
+    {
+        DrawCylinderEx(m_Pos, m_LaserShootedPos, 0.1f, 0.1f, 3, RED);
+        m_RenderLaser = false;
+    }
+
     EndMode3D();
 }
 
@@ -361,7 +452,9 @@ unsigned int CKillerBot::GetEntityID()
     case KILLERBOT_SAW:
         return CSawBot::SGetEntityID();
         break;
-    
+    case KILLERBOT_SHOOT:
+        return CShootBot::SGetEntityID();
+        break;
     default:
         return CKillerBot::SGetEntityID();
         break;
