@@ -167,7 +167,6 @@ void CKillerBot::Update()
                     Vector2 TempPos = {m_LaserShootedPos.x, m_LaserShootedPos.z};
                     CSector * pTempInOutSector = m_pMySector;
                     float Step = (pPlayer->m_Pos.y - m_Pos.y) / PointDistance({m_Pos.x, m_Pos.z}, TempPos);
-                    printf("%f\n",Step);
                     if(!DoRaycast({m_Pos.x, m_Pos.z}, TempPos, m_LaserShootedPos.y, Step, &pTempInOutSector))
                     {
                         pPlayer->m_Health -= 50;
