@@ -5,7 +5,7 @@
 
 This is the source code for Brain Evil: Dark World by +KZ (The new c++ version).
 
-All files (except the files in "data" directory and "3rdparty" directory, which have their own licenses) are under "GNU GENERAL PUBLIC LICENSE Version 3"
+All files (except the files in "data" directory and "3rdparty" directory, which have their own licenses) are under the "PLUSKAIZO LICENSE" found in "license.txt" in this directory.
 
 [Website](https://m0rekz.github.io/BEDW/)
 

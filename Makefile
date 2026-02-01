@@ -18,10 +18,11 @@ CXX = g++
 
 CFLAGS = -I ${CURDIR}/src -I ${CURDIR}/3rdparty/raylib/build/raylib/include -g
 LDFLAGS = -lraylib -L ./3rdparty/raylib/build/raylib/
+CMAKE_FLAGS =
 
 ifeq ($(OS),Windows_NT)
 	EXE_NAME = bedw.exe
-	CMAKE_FLAGS = -G "MinGW Makefiles"
+	CMAKE_FLAGS += -G "MinGW Makefiles"
 	LDFLAGS += -lgdi32 -lwinmm -static
 else
 	EXE_NAME = bedw
@@ -88,5 +89,6 @@ clean:
 	rm -f src/platform/*.d
 	rm -f lib/*.o
 	rm -f lib/*.d
+	rm -r -f 3rdparty/raylib/build
 
 
