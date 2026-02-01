@@ -50,7 +50,7 @@ one of the original authors for a different license or exceptions.
 
 Brain Evil: Dark World (c) Copyright Benjamín Gajardo All rights reserved
 
-Original software shared under the PLUSKAIZO LICENSE above:
+Original software shared under the PLUSKAIZO LICENSE (VERSION 1.3):
     "Brain Evil: Dark World"
 Original authors:
     Benjamín Gajardo (also known as "+KZ")
