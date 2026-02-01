@@ -2,7 +2,7 @@
 
 PLUSKAIZO LICENSE (c) Copyright Benjamín Gajardo All rights reserved
 
-PLUSKAIZO LICENSE (VERSION 1.3):
+PLUSKAIZO LICENSE (VERSION 1.3.1):
 
 This software is provided "as-is" without any kind of warranty, authors of
 this software are not responsible of any damage caused by using this software.
@@ -26,9 +26,9 @@ purpose EXCEPTING COMMERCIAL PURPOSES, subject to the following restrictions:
     -   That source code must NOT be obfuscated, protected with a password
         or inaccessible in any way.
 4.  Source code of altered versions must be shared under one of the next licenses:
-    -   PLUSKAIZO LICENSE at VERSION 1.3 or a newer compatible version.
+    -   PLUSKAIZO LICENSE at VERSION 1.3.1 or a newer compatible version.
     -   The license currently used in the original software source code
-        made by the original author.
+        made by the original authors.
     -   Other license approved by the original authors.
 5.  Using this software for commercial purposes is not allowed, only the original
     authors are allowed to use this software for commercial purposes, HOWEVER:
@@ -50,7 +50,7 @@ one of the original authors for a different license or exceptions.
 
 Brain Evil: Dark World (c) Copyright Benjamín Gajardo All rights reserved
 
-Original software shared under the PLUSKAIZO LICENSE (VERSION 1.3):
+Original software shared under the PLUSKAIZO LICENSE (VERSION 1.3.1):
     "Brain Evil: Dark World"
 Original authors:
     Benjamín Gajardo (also known as "+KZ")
