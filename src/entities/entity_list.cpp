@@ -11,6 +11,8 @@
 #include "menu_camera.h"
 #include "killer_drone.h"
 #include "victim.h"
+#include "saw.h"
+#include "stick.h"
 
 std::unordered_map<unsigned int, ENTITY_CREATOR_FUNC((*))> g_EntityCreatorList;
 
@@ -23,4 +25,6 @@ void InitEntityCreatorList()
     g_EntityCreatorList.insert({CVictim::SGetEntityID(), &CVictim::VictimCreator});
     g_EntityCreatorList.insert({CSawBot::SGetEntityID(), &CSawBot::SawBotCreator});
     g_EntityCreatorList.insert({CShootBot::SGetEntityID(), &CShootBot::ShootBotCreator});
+    g_EntityCreatorList.insert({CSaw::SGetEntityID(), &CSaw::SawCreator});
+    g_EntityCreatorList.insert({CStick::SGetEntityID(), &CStick::StickCreator});
 }

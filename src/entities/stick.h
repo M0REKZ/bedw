@@ -6,25 +6,24 @@
     a copy of the license along with the program.
 */
 
-#ifndef SAW_H
-#define SAW_H
+#ifndef STICK_H
+#define STICK_H
 
 #include "entity_base.h"
 
-class CSaw : public IEntity
+class CStick : public IEntity
 {
 
     public:
 
-    static ENTITY_ID(7);
-    static ENTITY_CREATOR_FUNC(SawCreator);
+    static ENTITY_ID(8);
+    static ENTITY_CREATOR_FUNC(StickCreator);
 
     CSector * m_pMySector = nullptr;
 
-    int m_Frame = 0;
-    int m_Lifetime;
+    bool m_CalledLevelScript = false;
 
-    CSaw(Vector3 Pos, CSector *pSector, bool pickup = true);
+    CStick(Vector3 Pos, CSector *pSector);
 
     virtual void Update() override;
     virtual void Render() override;
