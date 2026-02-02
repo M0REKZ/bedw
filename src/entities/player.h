@@ -34,6 +34,16 @@ class CPlayer : public IEntity
 
     Vector3 m_WantedVel = {0.f,0.f};
 
+    enum PlayerWeapon
+    {
+        //negative weapons does have infinite ammo
+        WEAPON_STICK = -2,
+        WEAPON_HAND = -1,
+        WEAPON_SAW = 0,
+        WEAPON_PISTOL = 1,
+        NUM_AMMO_WEAPONS,
+    } m_CurrentWeapon = WEAPON_HAND;
+
     CPlayer(Vector3 Pos);
 
     virtual void Update() override;

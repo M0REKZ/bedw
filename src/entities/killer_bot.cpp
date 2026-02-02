@@ -9,6 +9,7 @@
 #include <globals.h>
 #include <collision.h>
 #include <cmath>
+#include "saw.h"
 
 ENTITY_CREATOR_FUNC(CKillerBot::KillerBotCreator)
 {
@@ -109,6 +110,21 @@ void CKillerBot::Update()
             PlaySound(g_Game.m_Sounds[4]);
             PlaySound(g_Game.m_Sounds[5]);
             m_PlayedDeathSound = true;
+
+            //drop items
+            if(m_BotType == KILLERBOT_SAW)
+            {
+                CSaw * pSaw1 = new CSaw(m_Pos, m_pMySector, true);
+                pSaw1->m_Pos.y -= m_Radius;
+                pSaw1->m_Pos.y += pSaw1->m_Radius/2;
+                pSaw1->m_Pos.x -= 0.25f;
+                g_Game.AddEntity(pSaw1);
+                CSaw * pSaw2 = new CSaw(m_Pos, m_pMySector, true);
+                pSaw2->m_Pos.y -= m_Radius;
+                pSaw2->m_Pos.y += pSaw2->m_Radius/2;
+                pSaw2->m_Pos.x += 0.25f;
+                g_Game.AddEntity(pSaw2);
+            }
         }
         m_CanCollide = false;
         return;
@@ -122,6 +138,7 @@ void CKillerBot::Update()
             if(pPlayer->m_Type == EntType::ENTTYPE_PLAYER)
                 break;
         }
+        pPlayer = nullptr;
     }
 
     if(pPlayer && pPlayer->m_Health > 0)

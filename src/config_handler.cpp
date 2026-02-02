@@ -36,6 +36,11 @@ void CConfigHandler::SaveConfig()
 
     file << "FULLSCREEN " << m_Config.m_Fullscreen << std::endl;
 
+    file << "KEY_WEAPON_HAND " << m_Config.m_KeyWeaponHand << std::endl;
+    file << "KEY_WEAPON_SAW " << m_Config.m_KeyWeaponSaw << std::endl;
+    file << "KEY_WEAPON_STICK " << m_Config.m_KeyWeaponStick << std::endl;
+    file << "KEY_WEAPON_GUN " << m_Config.m_KeyWeaponGun << std::endl;
+
     file.close();
 }
 
@@ -49,6 +54,8 @@ void CConfigHandler::SaveGameProgress()
     file << "CURRENT_CHECKPOINT " << m_GameProgress.m_CheckPoint << std::endl;
     file << "GOT_GUN " << m_GameProgress.m_GotGun << std::endl;
     file << "GOT_STICK " << m_GameProgress.m_GotStick << std::endl;
+
+    file << "WEAPON_AMMO_SAW " << m_GameProgress.m_Ammo[CPlayer::WEAPON_SAW] << std::endl;
 
     file.close();
 }
@@ -102,6 +109,26 @@ void CConfigHandler::LoadConfig()
         {
             sscanf(line.c_str(), "FULLSCREEN %d", &m_Config.m_Fullscreen);
         }
+
+        if(strstr(line.c_str(), "KEY_WEAPON_HAND"))
+        {
+            sscanf(line.c_str(), "KEY_WEAPON_HAND %d", &m_Config.m_KeyWeaponHand);
+        }
+
+        if(strstr(line.c_str(), "KEY_WEAPON_SAW"))
+        {
+            sscanf(line.c_str(), "KEY_WEAPON_SAW %d", &m_Config.m_KeyWeaponSaw);
+        }
+
+        if(strstr(line.c_str(), "KEY_WEAPON_STICK"))
+        {
+            sscanf(line.c_str(), "KEY_WEAPON_STICK %d", &m_Config.m_KeyWeaponStick);
+        }
+
+        if(strstr(line.c_str(), "KEY_WEAPON_GUN"))
+        {
+            sscanf(line.c_str(), "KEY_WEAPON_GUN %d", &m_Config.m_KeyWeaponGun);
+        }
     }
 
     file.close();
@@ -135,6 +162,11 @@ void CConfigHandler::LoadGameProgress()
         if(strstr(line.c_str(), "GOT_STICK"))
         {
             sscanf(line.c_str(), "GOT_STICK %d", &m_GameProgress.m_GotStick);
+        }
+
+        if(strstr(line.c_str(), "WEAPON_AMMO_SAW"))
+        {
+            sscanf(line.c_str(), "WEAPON_AMMO_SAW %d", &m_GameProgress.m_Ammo[CPlayer::WEAPON_SAW]);
         }
     }
 

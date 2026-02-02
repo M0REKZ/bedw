@@ -23,6 +23,7 @@ class IEntity
         ENTTYPE_PLAYER,
         ENTTYPE_ENEMY,
         ENTTYPE_PICKUP,
+        ENTTYPE_PROJECTILE,
     };
     
     Vector3 m_Pos;
@@ -31,6 +32,7 @@ class IEntity
     int m_Health = 0;
     enum EntType m_Type = ENTTYPE_NONE;
     bool m_CanCollide = false;
+    bool m_MarkedForDeletion = false;
 
     virtual void Update() {};
     virtual void Render() {};

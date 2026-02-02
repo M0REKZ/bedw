@@ -254,6 +254,11 @@ void CInputHandler::UpdateInput()
     {
         m_Inputs.m_EditorPlaceEntityKey = false;
     }
+
+    m_Inputs.m_WeaponHand = IsKeyDown(g_ConfigHandler.m_Config.m_KeyWeaponHand);
+    m_Inputs.m_WeaponSaw = IsKeyDown(g_ConfigHandler.m_Config.m_KeyWeaponSaw);
+    m_Inputs.m_WeaponStick = IsKeyDown(g_ConfigHandler.m_Config.m_KeyWeaponStick);
+    m_Inputs.m_WeaponGun = IsKeyDown(g_ConfigHandler.m_Config.m_KeyWeaponGun);
 }
 
 void CInputHandler::UpdateMousePos()

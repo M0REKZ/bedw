@@ -24,9 +24,9 @@ bool IsPointInsideTriangle(Vector2 p, Vector2 p0, Vector2 p1, Vector2 p2);
 bool IsPointInsideSector(CSector * pSector, Vector2 Point);
 
 bool DoRaycast(Vector2 From, Vector2 &InOutTo, float &InOutAltitude, float Step, CSector ** ppInOutSector, CSector * pIgnoreSector = nullptr);
-void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector = nullptr, bool * pGroundedState = nullptr);
-void DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector);
-void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector, bool * pGroundedState = nullptr);
-void DoEntityCollision(Vector3 MyPos, Vector3 &InOutVel, float MyRadius, Vector3 HisPos, float HisRadius);
+bool DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector ** ppInOutSector = nullptr, bool * pGroundedState = nullptr);
+bool DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector);
+bool DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector, bool * pGroundedState = nullptr);
+bool DoEntityCollision(Vector3 MyPos, Vector3 &InOutVel, float MyRadius, Vector3 HisPos, float HisRadius);
 
 #endif

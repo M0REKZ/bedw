@@ -74,6 +74,7 @@ void CKillerDrone::Update()
             if(pPlayer->m_Type == EntType::ENTTYPE_PLAYER)
                 break;
         }
+        pPlayer = nullptr;
     }
 
     if(pPlayer && pPlayer->m_Health > 0)

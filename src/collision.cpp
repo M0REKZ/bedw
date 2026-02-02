@@ -215,14 +215,15 @@ bool DoRaycast(Vector2 From, Vector2 &InOutTo, float &InOutAltitude, float Step,
     return intersected;
 }
 
-void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector **ppInOutSector, bool *pGroundedState)
+bool DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector **ppInOutSector, bool *pGroundedState)
 {
+    bool collided = false;
     CSector *pPrevSector = nullptr;
     CSector *pNextSector = nullptr;
     CSector *pCurrentSector = ppInOutSector ? *ppInOutSector : g_Game.GetCurrentSector();
 
-    DoFloorCollision(Pos, InOutVel,Radius, pCurrentSector, pGroundedState);    
-    DoCeilingCollision(Pos, InOutVel, Radius, pCurrentSector);
+    collided |= DoFloorCollision(Pos, InOutVel,Radius, pCurrentSector, pGroundedState);    
+    collided |= DoCeilingCollision(Pos, InOutVel, Radius, pCurrentSector);
 
     do
     {
@@ -271,11 +272,11 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector **ppInOutS
                             float midalt = (pSector->m_Floor + pSector->m_Ceiling) / 2;
                             if(Pos.y > midalt)
                             {
-                                DoFloorCollision(Pos, InOutVel, Radius, pSector, (pGroundedState && *pGroundedState) ? nullptr : pGroundedState);
+                                collided |= DoFloorCollision(Pos, InOutVel, Radius, pSector, (pGroundedState && *pGroundedState) ? nullptr : pGroundedState);
                             }
                             else if(Pos.y < midalt)
                             {
-                                DoCeilingCollision(Pos, InOutVel, Radius, pSector);
+                                collided |=DoCeilingCollision(Pos, InOutVel, Radius, pSector);
                             }
                         }
                     }
@@ -351,6 +352,7 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector **ppInOutS
                         InOutVel.z = Intersection.y - Pos.z;
                         InOutVel.x += RadiusColDir.x;
                         InOutVel.z += RadiusColDir.y;
+                        collided = true;
                     }
                 }
             }
@@ -365,14 +367,20 @@ void DoMovement(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector **ppInOutS
 
     if(ppInOutSector)
         *ppInOutSector = pCurrentSector;
+
+    return collided;
 }
 
-void DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector)
+bool DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector)
 {
+    bool collided = false;
     if(!pSector->m_IsCeilingSlope)
     {
         if((Pos.y + Radius) + InOutVel.y > pSector->m_Ceiling)
+        {
             InOutVel.y = pSector->m_Ceiling - (Pos.y + Radius);
+            collided = true;
+        }
     }
     else if(pSector->m_NumVertices == 3)
     {
@@ -393,12 +401,18 @@ void DoCeilingCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *p
             pSector->m_pVertices[pSector->m_CeilingSlopeVert], pSector->m_CeilingSlopeAltitude - pSector->m_Ceiling, {Pos.x, Pos.z});
         altitude += pSector->m_Ceiling;
         if((Pos.y + Radius) + InOutVel.y > altitude)
+        {
             InOutVel.y = altitude - (Pos.y + Radius);
+            collided = true;
+        }
     }
+
+    return collided;
 }
 
-void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector, bool * pGroundedState)
+bool DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSector, bool * pGroundedState)
 {
+    bool collided = false;
     bool grounded = false;
     if(!pSector->m_IsFloorSlope)
     {
@@ -406,6 +420,7 @@ void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSe
         {
             InOutVel.y = pSector->m_Floor - (Pos.y - Radius);
             grounded = true;
+            collided = true;
         }
     }
     else if(pSector->m_NumVertices == 3)
@@ -430,14 +445,17 @@ void DoFloorCollision(Vector3 Pos, Vector3 &InOutVel, float Radius, CSector *pSe
         {
             InOutVel.y = altitude - (Pos.y - Radius);
             grounded = true;
+            collided = true;
         }
     }
 
     if(pGroundedState)
         *pGroundedState = grounded;
+
+    return collided;
 }
 
-void DoEntityCollision(Vector3 MyPos, Vector3 &InOutVel, float MyRadius, Vector3 HisPos, float HisRadius)
+bool DoEntityCollision(Vector3 MyPos, Vector3 &InOutVel, float MyRadius, Vector3 HisPos, float HisRadius)
 {
     Vector3 FuturePoint = {InOutVel.x + MyPos.x, InOutVel.y + MyPos.y, InOutVel.z + MyPos.z};
     float dist = PointDistance3D(MyPos, HisPos);
@@ -454,5 +472,7 @@ void DoEntityCollision(Vector3 MyPos, Vector3 &InOutVel, float MyRadius, Vector3
         InOutVel.z += RadiusColDir.y;
         InOutVel.x /= 2.f;
         InOutVel.z /= 2.f;
+        return true;
     }
+    return false;
 }

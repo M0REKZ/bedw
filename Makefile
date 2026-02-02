@@ -42,6 +42,7 @@ SRC = \
 	src/entities/killer_bot.cpp \
 	src/entities/killer_drone.cpp \
 	src/entities/menu_camera.cpp \
+	src/entities/saw.cpp \
 	src/entities/victim.cpp \
 	src/collision.cpp \
 	src/config_handler.cpp \

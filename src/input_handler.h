@@ -39,6 +39,11 @@ struct SInput
     bool m_EditorCeilingSlopeKey = false;
     bool m_EditorFloorSlopeKey = false;
     bool m_EditorPlaceEntityKey = false;
+
+    bool m_WeaponHand = false;
+    bool m_WeaponSaw = false;
+    bool m_WeaponGun = false;
+    bool m_WeaponStick = false;
 };
 
 class CInputHandler

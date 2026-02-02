@@ -15,6 +15,8 @@
 #include <cstdio>
 #include <pause_handler.h>
 #include <helper_ui.h>
+#include "saw.h"
+#include <config_handler.h>
 
 ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 {
@@ -24,40 +26,74 @@ ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 
 void CPlayer::DoAttack()
 {
-    IEntity * pClosestTarget = nullptr;
-    IEntity * pEntity = nullptr;
-    float closestdistance = 9999.f;
-    for(int i = 0; i < g_Game.NumEntities(); i++)
+    if(m_CurrentWeapon == PlayerWeapon::WEAPON_HAND || m_CurrentWeapon == PlayerWeapon::WEAPON_STICK)
     {
-        if((pEntity = g_Game.GetEntity(i)))
+        IEntity * pClosestTarget = nullptr;
+        IEntity * pEntity = nullptr;
+        float closestdistance = 9999.f;
+        for(int i = 0; i < g_Game.NumEntities(); i++)
         {
-            if(pEntity->m_Type == EntType::ENTTYPE_ENEMY)
+            if((pEntity = g_Game.GetEntity(i)))
             {
-                if(pEntity->m_Health <= 0)
-                    continue;
-
-                float distance = PointDistance3D(pEntity->m_Pos, m_Pos);
-
-                if(distance < closestdistance)
+                if(pEntity->m_Type == EntType::ENTTYPE_ENEMY)
                 {
-                    closestdistance = distance;
-                    pClosestTarget = pEntity;
+                    if(pEntity->m_Health <= 0)
+                        continue;
+
+                    float distance = PointDistance3D(pEntity->m_Pos, m_Pos);
+
+                    if(distance < closestdistance)
+                    {
+                        closestdistance = distance;
+                        pClosestTarget = pEntity;
+                    }
                 }
             }
         }
-    }
 
-    if(pClosestTarget)
-    {
-        if(closestdistance < 2.f)
+        if(pClosestTarget)
         {
-            pClosestTarget->m_Health--;
+            if(closestdistance < (m_CurrentWeapon == PlayerWeapon::WEAPON_HAND ? 2.f : 4.f))
+            {
+                pClosestTarget->m_Health--;
+            }
+        }
+
+        StopSound(g_Game.m_Sounds[3]);
+        PlaySound(g_Game.m_Sounds[3]);
+        m_AttackDelay = 20;
+        m_Frame = 10;
+    }
+    else if(m_CurrentWeapon == PlayerWeapon::WEAPON_SAW)
+    {
+        if(g_ConfigHandler.m_GameProgress.m_Ammo[PlayerWeapon::WEAPON_SAW])
+        {
+            const SInput * pInput = g_InputHandler.GetInputs();
+            Vector3 SawPos = m_Pos;
+
+            SawPos.x += cosf(pInput->m_Angle) * (m_Radius * 1.5f);
+            SawPos.y += m_Radius/2.f;
+            SawPos.z += sinf(pInput->m_Angle) * (m_Radius * 1.5f);
+            CSaw * pSawProjectile = new CSaw(SawPos, g_Game.GetCurrentSector(), false);
+            pSawProjectile->m_Vel.x = cosf(pInput->m_Angle);
+            //pSawProjectile->m_Vel.y = -cosf(pInput->m_AngleY);
+            pSawProjectile->m_Vel.y = 0;
+            pSawProjectile->m_Vel.z = sinf(pInput->m_Angle);
+
+            g_Game.AddEntity(pSawProjectile);
+
+            g_ConfigHandler.m_GameProgress.m_Ammo[PlayerWeapon::WEAPON_SAW]--;
+
+            m_AttackDelay = 20;
+            StopSound(g_Game.m_Sounds[3]);
+            PlaySound(g_Game.m_Sounds[3]);
+        }
+        
+        if(!g_ConfigHandler.m_GameProgress.m_Ammo[PlayerWeapon::WEAPON_SAW])
+        {
+            m_CurrentWeapon = PlayerWeapon::WEAPON_HAND;
         }
     }
-
-    PlaySound(g_Game.m_Sounds[3]);
-    m_AttackDelay = 20;
-    m_Frame = 10;
 }
 
 void CPlayer::CollectPickups()
@@ -74,7 +110,7 @@ void CPlayer::CollectPickups()
 
                 float distance = PointDistance3D(pEntity->m_Pos, m_Pos);
 
-                if(distance < pEntity->m_Radius)
+                if(distance < pEntity->m_Radius + m_Radius)
                 {
                     pEntity->m_Health = 0;
                 }
@@ -169,6 +205,15 @@ void CPlayer::Update()
     {
         m_Angle = pInput->m_Angle - M_PI_2;
         walk = true;
+    }
+
+    if(pInput->m_WeaponHand)
+    {
+        m_CurrentWeapon = PlayerWeapon::WEAPON_HAND;
+    }
+    else if(pInput->m_WeaponSaw)
+    {
+        m_CurrentWeapon = PlayerWeapon::WEAPON_SAW;
     }
 
     if(pInput->m_Left)
@@ -371,8 +416,39 @@ void CPlayer::Render()
         DrawRectangle(0, g_Globals.m_CurrentWindowHeight - 60 * vscale, g_Globals.m_CurrentWindowWidth, 60 * vscale, {38,38,38,255});
         DrawTextCenterScaledToScreen(g_Globals.m_MainFont, "Chydia", g_Globals.m_CurrentWindowWidth/2, g_Globals.m_CurrentWindowHeight - 30 * vscale, 5);
         DrawTextCenterScaledToScreen(g_Globals.m_MainFont, "Health", 10 * xscale + (g_Globals.m_CurrentWindowWidth/4 - 20)/2, g_Globals.m_CurrentWindowHeight - 45 * vscale, 2.5);
+        DrawTextCenterScaledToScreen(g_Globals.m_MainFont, "Weapon", 10 * xscale + (g_Globals.m_CurrentWindowWidth/4 * 3.f), g_Globals.m_CurrentWindowHeight - 45 * vscale, 2.5);
         DrawRectangle(10 * xscale, g_Globals.m_CurrentWindowHeight - 20 * vscale, g_Globals.m_CurrentWindowWidth/4 - 20, 15 * vscale, RED);
         DrawRectangle(10 * xscale, g_Globals.m_CurrentWindowHeight - 20 * vscale, (g_Globals.m_CurrentWindowWidth/4 - 20) * std::max((float)m_Health/100,0.f), 15 * vscale, GREEN);
+        
+        const char * pWeaponText = "Unknown";
+        switch(m_CurrentWeapon)
+        {
+        case WEAPON_HAND:
+            pWeaponText = "Hand";
+            break;
+        case WEAPON_STICK:
+            pWeaponText = "Stick";
+            break;
+        case WEAPON_SAW:
+            pWeaponText = "Saw";
+            break;
+        case WEAPON_PISTOL:
+            pWeaponText = "Pistol";
+            break;
+        
+        default:
+            break;
+        }
+        DrawTextCenterScaledToScreen(g_Globals.m_MainFont, pWeaponText, 10 * xscale + (g_Globals.m_CurrentWindowWidth/4 * 3.f), g_Globals.m_CurrentWindowHeight - 20 * vscale, 2.5);
+
+        if(m_CurrentWeapon >= 0)
+        {
+            char ammo[128] = {'\0'};
+            snprintf(ammo, sizeof(ammo), "%d", g_ConfigHandler.m_GameProgress.m_Ammo[m_CurrentWeapon]);
+            DrawTextCenterScaledToScreen(g_Globals.m_MainFont, "Ammo", 20 * xscale + (g_Globals.m_CurrentWindowWidth/4 * 3.5f), g_Globals.m_CurrentWindowHeight - 45 * vscale, 2.5);
+            DrawTextCenterScaledToScreen(g_Globals.m_MainFont, ammo, 20 * xscale + (g_Globals.m_CurrentWindowWidth/4 * 3.5f), g_Globals.m_CurrentWindowHeight - 20 * vscale, 2.5);
+        }
+
         EndMode2D();
     }
 }

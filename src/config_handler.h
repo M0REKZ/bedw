@@ -9,6 +9,7 @@
 #define CONFIG_HANDLER_H
 
 #include <raylib.h>
+#include <entities/player.h>
 
 struct SConfig
 {
@@ -20,6 +21,12 @@ struct SConfig
     int m_MouseSens = 100;
     int m_MouseInvertY = false;
     int m_Fullscreen = false;
+    
+    //weapons
+    int m_KeyWeaponHand = KEY_ONE;
+    int m_KeyWeaponSaw = KEY_TWO;
+    int m_KeyWeaponStick = KEY_THREE;
+    int m_KeyWeaponGun = KEY_FOUR;
 };
 
 struct SGameProgress
@@ -28,6 +35,8 @@ struct SGameProgress
     unsigned int m_CheckPoint = 0;
     int m_GotStick = false;
     int m_GotGun = false;
+
+    int m_Ammo[CPlayer::PlayerWeapon::NUM_AMMO_WEAPONS] = {0}; //Saw
 };
 
 class CConfigHandler

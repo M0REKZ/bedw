@@ -1114,6 +1114,28 @@ bool CGame::InitAssets()
         }
     }
 
+    if(m_HasMusic)
+    {
+        char filename[256] = {0};
+        snprintf(filename, sizeof(filename), "data/music/%d.mp3", m_MusicID);
+        if(FileExists(filename))
+        {
+            m_Music = LoadMusicStream(filename);
+            PlayMusicStream(m_Music);
+            SetMusicPan(m_Music, 0.f);
+            SetMusicVolume(m_Music, 0.8f);
+        }
+    }
+
+    UpdateAssets();
+
+    g_LevelScriptHandler.PostLoad();
+
+    return true;
+}
+
+void CGame::UpdateAssets()
+{
     char filename[256] = {0};
     for(auto id : m_NeededTextures)
     {
@@ -1141,22 +1163,6 @@ bool CGame::InitAssets()
         }
     }
     m_NeededSounds.clear();
-
-    if(m_HasMusic)
-    {
-        snprintf(filename, sizeof(filename), "data/music/%d.mp3", m_MusicID);
-        if(FileExists(filename))
-        {
-            m_Music = LoadMusicStream(filename);
-            PlayMusicStream(m_Music);
-            SetMusicPan(m_Music, 0.f);
-            SetMusicVolume(m_Music, 0.8f);
-        }
-    }
-
-    g_LevelScriptHandler.PostLoad();
-
-    return true;
 }
 
 void CGame::SetNeededTexture(unsigned int id)
@@ -1306,14 +1312,61 @@ void CGame::Update()
 
     if(m_pEntities)
     {
+        bool mustresize = false;
         for(int i = 0; i < m_NumEntities; i++)
         {
             if(m_pEntities[i])
             {
                 m_pEntities[i]->Update();
+                if(m_pEntities[i]->m_MarkedForDeletion)
+                    mustresize = true;
             }
         }
+
+        if(mustresize)
+        {
+            int entcount = 0;
+
+            for(int i = 0; i < m_NumEntities; i++)
+            {
+                if(m_pEntities[i])
+                {
+                    if(!m_pEntities[i]->m_MarkedForDeletion)
+                    {
+                        entcount++;
+                    }
+                }
+            }
+
+            IEntity ** pTemp = nullptr;
+            pTemp = new IEntity*[entcount];
+
+            int j = 0;
+            for(int i = 0; i < m_NumEntities; i++)
+            {
+                if(m_pEntities[i])
+                {
+                    if(!m_pEntities[i]->m_MarkedForDeletion)
+                    {
+                        pTemp[j] = m_pEntities[i];
+                        j++;
+                    }
+                    else
+                    {
+                        delete m_pEntities[i];
+                        m_pEntities[i] = nullptr;
+                    }
+                }
+            }
+
+            delete[] m_pEntities;
+            m_pEntities = pTemp;
+            m_NumEntities = entcount;
+        }
     }
+
+    //in case a new entity appeared
+    UpdateAssets();
 
     g_LevelScriptHandler.PostUpdate();
 }
@@ -1341,6 +1394,28 @@ void CGame::Render()
             }
         }
     }
+}
+
+IEntity *CGame::AddEntity(IEntity *pEntity)
+{
+    //resize array
+    IEntity ** pTemp = new IEntity*[m_NumEntities + 1];
+
+    for(int i = 0; i < m_NumEntities; i++)
+    {
+        pTemp[i] = m_pEntities[i];
+    }
+
+    delete[] m_pEntities;
+    m_pEntities = pTemp;
+
+    m_NumEntities++;
+
+    //add entity
+
+    m_pEntities[m_NumEntities - 1] = pEntity;
+
+    return m_pEntities[m_NumEntities - 1];
 }
 
 unsigned long long CGame::SectorPointerToID(CSector *pSector)

@@ -94,7 +94,6 @@ void CPauseHandler::HandleMenuOption(unsigned int Page, int Option)
         }
         if(Option == 3) //Main Menu
         {
-            g_ConfigHandler.SaveGameProgress();
             g_LevelHandler.LoadMenuLevel();
             return;
         }

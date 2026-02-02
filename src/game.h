@@ -59,6 +59,7 @@ class CGame
     void UpdateEditorInput();
 
     bool InitAssets();
+    void UpdateAssets();
 
     public:
 
@@ -112,6 +113,7 @@ class CGame
     int NumSectors() { return m_NumSectors; }
 
     IEntity * GetEntity(int i) { return (i < 0 || i >= m_NumEntities) ? nullptr : m_pEntities[i]; }
+    IEntity * AddEntity(IEntity * pEntity);
     int NumEntities() { return m_NumEntities; }
 
     unsigned long long SectorPointerToID(CSector *pSector);
