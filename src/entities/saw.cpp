@@ -74,10 +74,13 @@ void CSaw::Update()
             {
                 if((pEnemy->m_Type == EntType::ENTTYPE_ENEMY || pEnemy->m_Type == EntType::ENTTYPE_PLAYER))
                 {
-                    float distance = PointDistance3D(pEnemy->m_Pos, m_Pos);
+                    if(pEnemy->m_Health > 0)
+                    {
+                        float distance = PointDistance3D(pEnemy->m_Pos, m_Pos);
 
-                    if(distance <= pEnemy->m_Radius + m_Radius)
-                        break;
+                        if(distance <= pEnemy->m_Radius + m_Radius)
+                            break;
+                    }
                 }
             }
             pEnemy = nullptr;

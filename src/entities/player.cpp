@@ -213,7 +213,8 @@ void CPlayer::Update()
     }
     else if(pInput->m_WeaponSaw)
     {
-        m_CurrentWeapon = PlayerWeapon::WEAPON_SAW;
+        if(g_ConfigHandler.m_GameProgress.m_Ammo[PlayerWeapon::WEAPON_SAW])
+            m_CurrentWeapon = PlayerWeapon::WEAPON_SAW;
     }
 
     if(pInput->m_Left)

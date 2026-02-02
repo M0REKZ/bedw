@@ -88,6 +88,7 @@ void CPauseHandler::HandleMenuOption(unsigned int Page, int Option)
         }
         if(Option == 1) //Retry
         {
+            g_ConfigHandler.LoadGameProgress();
             g_LevelHandler.LoadLevelNum(g_ConfigHandler.m_GameProgress.m_CurrentLevelNumber);
             m_IsPaused = false;
             return;
@@ -102,6 +103,7 @@ void CPauseHandler::HandleMenuOption(unsigned int Page, int Option)
     {
         if(Option == 0) //Continue
         {
+            g_ConfigHandler.LoadGameProgress();
             g_LevelHandler.LoadLevelNum(g_ConfigHandler.m_GameProgress.m_CurrentLevelNumber);
             return;
         }
