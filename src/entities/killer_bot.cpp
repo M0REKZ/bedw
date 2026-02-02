@@ -71,7 +71,7 @@ CKillerBot::CKillerBot(Vector3 Pos, CSector * pSector, KillerBotType BotType)
         g_Game.SetNeededSound(0); // slice
         g_Game.SetNeededSound(9); // shoot!
 
-        m_ShootDelay = 60 * 4;
+        m_ShootDelay = 60 * 2;
         break;
     
     default:
@@ -181,7 +181,7 @@ void CKillerBot::Update()
                     m_LaserShootedPos.x = TempPos.x;
                     m_LaserShootedPos.z = TempPos.y;
                     m_RenderLaser = true;
-                    m_ShootDelay = 60 * 4;
+                    m_ShootDelay = 60 * 2;
                 }
             }
 
@@ -219,7 +219,7 @@ void CKillerBot::Update()
             {
                 m_AttackFrame = 0;
             }
-            m_ShootDelay = 60 * 4;
+            m_ShootDelay = 60 * 2;
             m_WantedVel = {0,0,0};
         }
 
@@ -257,7 +257,7 @@ void CKillerBot::Update()
         m_WantedVel = {0,0,0};
         m_Attack = false;
         m_AttackFrame = 0;
-        m_ShootDelay = 60 * 4;
+        m_ShootDelay = 60 * 2;
     }
 
     if(m_EdgeSmart && !m_FutureGrounded)

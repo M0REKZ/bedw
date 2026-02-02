@@ -136,6 +136,8 @@ CPlayer::CPlayer(Vector3 Pos)
     g_Game.SetNeededTexture(10); // jump
     g_Game.SetNeededTexture(16); // hurt
     g_Game.SetNeededTexture(17); // attack
+    g_Game.SetNeededTexture(43); // back 1
+    g_Game.SetNeededTexture(44); // back 2
 
     g_Game.SetNeededSound(1); // hurt
     g_Game.SetNeededSound(3); // hit miss
@@ -388,24 +390,34 @@ void CPlayer::Render()
     BeginShaderMode(g_Globals.m_TransparentBillboardShader);
     if(m_Health <= 0)
     { /* TODO: need dead sprite */ }
-    else if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[4], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 1)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[5], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 2)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[6], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 4)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[7], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 6)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[8], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 7)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[9], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 8)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[10], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 9)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[16], {0,0,m_LookingLeft ? -25.f : 25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
-    else if(m_Frame == 10)
-        DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[17], {0,0,m_LookingLeft ? -25.f : 25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+    else if(m_CurrentWeapon == WEAPON_HAND)
+    {
+        if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[4], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 1)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[5], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 2)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[6], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 4)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[7], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 6)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[8], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 7)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[9], {0,0,m_LookingLeft ? -25.f : 25.f,30.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 8)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[10], {0,0,m_LookingLeft ? -22.f : 22.f,32.f}, m_Pos, {m_Radius*2*0.6875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 9)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[16], {0,0,m_LookingLeft ? -25.f : 25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 10)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[17], {0,0,m_LookingLeft ? -25.f : 25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+    }
+    else if(m_CurrentWeapon == WEAPON_SAW)
+    {
+        if(m_Frame == 1 || m_Frame == 6 || m_Frame == 4)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[44], {0,0,25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+        else
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[43], {0,0,25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+    }
     EndShaderMode();
     EndMode3D();
 
