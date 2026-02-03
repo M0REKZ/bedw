@@ -14,6 +14,13 @@ CLevelScriptHandler g_LevelScriptHandler;
 
 void CLevelScriptHandler::PostLoad()
 {
+    if(m_pTargets)
+    {
+        delete[] m_pTargets;
+        m_NumTargets = 0;
+        m_pTargets = nullptr;
+    }
+
     if(g_PauseHandler.m_IsMenu)
         return;
 
@@ -63,9 +70,9 @@ void CLevelScriptHandler::PostUpdate()
             }
         }
 
+        static bool setsector = false;
         if(!alive)
         {
-            static bool setsector = false;
             if(!setsector)
             {
                 CSector * pDoor = g_Game.GetSector(18);
@@ -75,6 +82,10 @@ void CLevelScriptHandler::PostUpdate()
                     pDoor->m_Floor = -60;
                 }
             }
+        }
+        else
+        {
+            setsector = false;
         }
     }
 }

@@ -172,3 +172,18 @@ void CConfigHandler::LoadGameProgress()
 
     file.close();
 }
+
+void CConfigHandler::HardResetProgress()
+{
+    m_GameProgress.m_CurrentLevelNumber = 0;
+    m_GameProgress.m_CheckPoint = 0;
+    m_GameProgress.m_GotGun = false;
+    m_GameProgress.m_GotStick = false;
+
+    for(auto &WeaponAmmo : m_GameProgress.m_Ammo)
+    {
+        WeaponAmmo = 0;
+    }
+
+    //SaveGameProgress(); should really?
+}

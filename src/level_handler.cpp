@@ -258,6 +258,7 @@ bool CLevelHandler::LoadMenuLevel()
 
 bool CLevelHandler::LoadFirstLevel()
 {
+    g_ConfigHandler.HardResetProgress();
     return LoadLevelNum(0);
 }
 

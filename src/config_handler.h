@@ -52,6 +52,7 @@ class CConfigHandler
     void SaveGameProgress();
     void LoadConfig();
     void LoadGameProgress();
+    void HardResetProgress();
 
 
 
