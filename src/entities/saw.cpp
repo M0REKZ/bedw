@@ -33,6 +33,7 @@ CSaw::CSaw(Vector3 Pos, CSector * pSector, bool pickup)
     g_Game.SetNeededTexture(42); // saw
 
     g_Game.SetNeededSound(0); //slice
+    g_Game.SetNeededSound(10); //pickup
 
     m_Lifetime = 60 * 10;
 }
@@ -50,6 +51,8 @@ void CSaw::Update()
     {
         g_ConfigHandler.m_GameProgress.m_Ammo[0]++;
         m_MarkedForDeletion = true;
+        StopSound(g_Game.m_Sounds[10]);
+        PlaySound(g_Game.m_Sounds[10]);
         return;
     }
 

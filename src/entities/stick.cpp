@@ -25,6 +25,7 @@ CStick::CStick(Vector3 Pos, CSector * pSector)
     m_Type = ENTTYPE_PICKUP;
 
     g_Game.SetNeededTexture(45); // stick
+    g_Game.SetNeededSound(10); //pickup
 }
 
 void CStick::Update()
@@ -37,6 +38,8 @@ void CStick::Update()
 
     if(m_Health <= 0)
     {
+        StopSound(g_Game.m_Sounds[10]);
+        PlaySound(g_Game.m_Sounds[10]);
         g_ConfigHandler.m_GameProgress.m_GotStick = true;
     }
 }

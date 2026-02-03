@@ -12,4 +12,5 @@ NOTE: some assets were modified for this game as the asset license allowed it
 "6.mp3" License: CC0 (from https://freesound.org/people/GiocoSound/sounds/421143/)
 "7.mp3" License: CC0 (from https://freesound.org/people/Kneeling/sounds/643869/)
 "8.mp3" by DrinkingWindGames. License: CC BY 4.0 (https://freesound.org/people/DrinkingWindGames/sounds/463731/)
-"9.mp3" License: CC0 (from https://freesound.org/people/mrspivey/sounds/805194/)
+"9.wav" License: CC0 (from https://freesound.org/people/mrspivey/sounds/805194/)
+"10.wav" By Teeworlds Developers, converted to wav by +KZ. License: CC BY-SA 3.0 (original file: https://github.com/teeworlds/teeworlds/blob/master/datasrc/audio/sfx_pickup_arm-01.wv)

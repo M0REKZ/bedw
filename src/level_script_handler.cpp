@@ -95,8 +95,8 @@ void CLevelScriptHandler::OnExitTouch(IEntity * pEnt)
     if(g_ConfigHandler.m_GameProgress.m_CurrentLevelNumber == 0)
     {
         g_ConfigHandler.m_GameProgress.m_CheckPoint = 0;
-        g_ConfigHandler.SaveGameProgress();
         g_LevelHandler.LoadLevelNum(1);
+        g_ConfigHandler.SaveGameProgress();
         return;
     }
 }
