@@ -54,7 +54,9 @@ void CMenuCamera::Render()
 
     float scale = std::min((float)g_Globals.m_CurrentWindowWidth / GAME_WIDTH ,(float)g_Globals.m_CurrentWindowHeight / GAME_HEIGHT);
 
-    DrawTextureEx(g_Game.m_Textures[18], {g_Globals.m_CurrentWindowWidth / 2 - 256 * scale, 10}, 0, scale, {255,255,255,255});
+    scale *= 0.393f;
+
+    DrawTextureEx(g_Game.m_Textures[18], {g_Globals.m_CurrentWindowWidth / 2 - 650 * scale, 10}, 0, scale, {255,255,255,255});
 
     EndMode2D();
 }

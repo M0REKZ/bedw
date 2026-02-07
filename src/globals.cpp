@@ -23,7 +23,7 @@ void CGlobals::Init()
     m_RaylibCamera2D.zoom = 1;
 
     m_TransparentBillboardShader = LoadShader(nullptr, "data/shaders/discard_alpha.fs");
-    m_MainFont = LoadFontEx("data/fonts/MidnightLetters-Regular.otf", 64, nullptr, 0);
+    m_MainFont = LoadFontEx("data/fonts/MidnightLetters-Regular.otf", 128, nullptr, 0);
     GenTextureMipmaps(&m_MainFont.texture);
     SetTextureFilter(m_MainFont.texture, TEXTURE_FILTER_TRILINEAR);
 }
