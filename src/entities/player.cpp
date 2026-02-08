@@ -26,7 +26,14 @@ ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 
 void CPlayer::DoAttack()
 {
-    if(m_CurrentWeapon == PlayerWeapon::WEAPON_HAND || m_CurrentWeapon == PlayerWeapon::WEAPON_STICK)
+    if(m_CurrentWeapon == PlayerWeapon::WEAPON_STICK && m_PrevAttackDelay != 1)
+    {
+        if(m_PrevAttackDelay <= 0 && m_AttackDelay <= 0)
+        {
+            m_PrevAttackDelay = 15;
+        }
+    }
+    else if(m_CurrentWeapon == PlayerWeapon::WEAPON_HAND || m_PrevAttackDelay == 1)
     {
         IEntity * pClosestTarget = nullptr;
         IEntity * pEntity = nullptr;
@@ -55,7 +62,7 @@ void CPlayer::DoAttack()
         {
             if(closestdistance < (m_CurrentWeapon == PlayerWeapon::WEAPON_HAND ? 2.f : 4.f))
             {
-                pClosestTarget->m_Health--;
+                pClosestTarget->m_Health -= (m_CurrentWeapon == PlayerWeapon::WEAPON_HAND ? 1 : 5);
             }
         }
 
@@ -127,6 +134,8 @@ CPlayer::CPlayer(Vector3 Pos)
     m_Pos.y += m_Radius;
     m_Vel = {0,0,0};
     m_CanCollide = true;
+
+    //hand
     g_Game.SetNeededTexture(4); // chydia image
     g_Game.SetNeededTexture(5); // run
     g_Game.SetNeededTexture(6); // also run
@@ -136,8 +145,22 @@ CPlayer::CPlayer(Vector3 Pos)
     g_Game.SetNeededTexture(10); // jump
     g_Game.SetNeededTexture(16); // hurt
     g_Game.SetNeededTexture(17); // attack
+    // TODO: needs swing animation
+
+    //saw
     g_Game.SetNeededTexture(43); // back 1
     g_Game.SetNeededTexture(44); // back 2
+
+    //stick
+    g_Game.SetNeededTexture(46); // chydia with stick
+    g_Game.SetNeededTexture(47); // walk
+    g_Game.SetNeededTexture(48); // run
+    g_Game.SetNeededTexture(49); // also run
+    g_Game.SetNeededTexture(50); // jump
+    g_Game.SetNeededTexture(51); // hurt
+    g_Game.SetNeededTexture(52); // fall
+    g_Game.SetNeededTexture(53); // attack
+    g_Game.SetNeededTexture(54); // attack swing
 
     g_Game.SetNeededSound(1); // hurt
     g_Game.SetNeededSound(3); // hit miss
@@ -218,6 +241,11 @@ void CPlayer::Update()
         if(g_ConfigHandler.m_GameProgress.m_Ammo[PlayerWeapon::WEAPON_SAW])
             m_CurrentWeapon = PlayerWeapon::WEAPON_SAW;
     }
+    else if(pInput->m_WeaponStick)
+    {
+        if(g_ConfigHandler.m_GameProgress.m_GotStick)
+            m_CurrentWeapon = PlayerWeapon::WEAPON_STICK;
+    }
 
     if(pInput->m_Left)
     {
@@ -240,8 +268,16 @@ void CPlayer::Update()
         PlaySound(g_Game.m_Sounds[6]);
     }
 
-    if(m_AttackDelay <= 0 && pInput->m_MouseClick)
+    if(m_PrevAttackDelay > 0)
     {
+        m_PrevAttackDelay--;
+        if(m_CurrentWeapon != WEAPON_STICK) //only for stick weapon
+            m_PrevAttackDelay = 0;
+    }
+
+    if(m_AttackDelay <= 0 && (pInput->m_MouseClick || m_PrevAttackDelay == 1))
+    {
+        printf("%d \n", m_PrevAttackDelay);
         DoAttack();
     }
 
@@ -332,7 +368,12 @@ void CPlayer::Update()
 
 void CPlayer::Render()
 {
-    if(m_Frame == 9 || m_Frame == 10)
+    if(m_PrevAttackDelay > 1)
+    {
+        m_Frame = 11;
+        m_FrameTime = 0;
+    }
+    else if(m_Frame == 9 || m_Frame == 10)
     {
         m_FrameTime++;
         if(m_FrameTime >= 10)
@@ -417,6 +458,27 @@ void CPlayer::Render()
             DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[44], {0,0,25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
         else
             DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[43], {0,0,25.f,32.f}, m_Pos, {m_Radius*2*0.83f, m_Radius*2}, {255,255,255,255});
+    }
+    else if(m_CurrentWeapon == WEAPON_STICK)
+    {
+        if(m_Frame == 0 || m_Frame == 3 || m_Frame == 5)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[46], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 1)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[48], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 2)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[49], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 4 || m_Frame == 6)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[47], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 7)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[52], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 8)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[50], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 9)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[51], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 10)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[53], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
+        else if(m_Frame == 11)
+            DrawBillboardRec(g_Globals.m_RaylibCamera, g_Game.m_Textures[54], {0,0,m_LookingLeft ? -60.f : 60.f,32.f}, m_Pos, {m_Radius*2*1.875f, m_Radius*2}, {255,255,255,255});
     }
     EndShaderMode();
     EndMode3D();

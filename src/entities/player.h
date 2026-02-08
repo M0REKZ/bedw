@@ -29,6 +29,7 @@ class CPlayer : public IEntity
 
     int m_PrevHealth;
     int m_AttackDelay = 0;
+    int m_PrevAttackDelay = 0;
 
     int m_Walking = 0;
 

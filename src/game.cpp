@@ -1167,7 +1167,8 @@ void CGame::UpdateAssets()
 
 void CGame::SetNeededTexture(unsigned int id)
 {
-    if(std::find(m_NeededTextures.begin(), m_NeededTextures.end(), id) == m_NeededTextures.end())
+    if(std::find(m_NeededTextures.begin(), m_NeededTextures.end(), id) == m_NeededTextures.end() &&
+        m_Textures.find(id) == m_Textures.end())
     {
         m_NeededTextures.push_back(id);
     }
@@ -1175,7 +1176,8 @@ void CGame::SetNeededTexture(unsigned int id)
 
 void CGame::SetNeededSound(unsigned int id)
 {
-    if(std::find(m_NeededSounds.begin(), m_NeededSounds.end(), id) == m_NeededSounds.end())
+    if(std::find(m_NeededSounds.begin(), m_NeededSounds.end(), id) == m_NeededSounds.end() &&
+        m_Sounds.find(id) == m_Sounds.end())
     {
         m_NeededSounds.push_back(id);
     }
