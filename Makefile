@@ -37,6 +37,7 @@ SRC = \
 	src/input_handler.cpp \
 	src/game.cpp \
 	src/globals.cpp \
+	src/entities/checkpoint.cpp \
 	src/entities/entity_list.cpp \
 	src/entities/player.cpp \
 	src/entities/killer_bot.cpp \

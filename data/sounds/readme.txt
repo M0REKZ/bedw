@@ -14,3 +14,4 @@ NOTE: some assets were modified for this game as the asset license allowed it
 "8.mp3" by DrinkingWindGames. License: CC BY 4.0 (https://freesound.org/people/DrinkingWindGames/sounds/463731/)
 "9.wav" License: CC0 (from https://freesound.org/people/mrspivey/sounds/805194/)
 "10.wav" By Teeworlds Developers, converted to wav by +KZ. License: CC BY-SA 3.0 (original file: https://github.com/teeworlds/teeworlds/blob/master/datasrc/audio/sfx_pickup_arm-01.wv)
+"11.wav" By Teeworlds Developers, converted to wav by +KZ. License: CC BY-SA 3.0 (original file: https://github.com/teeworlds/teeworlds/blob/master/datasrc/audio/sfx_spawn_wpn-03.wv)

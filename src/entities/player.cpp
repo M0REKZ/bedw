@@ -17,6 +17,7 @@
 #include <helper_ui.h>
 #include "saw.h"
 #include <config_handler.h>
+#include "checkpoint.h"
 
 ENTITY_CREATOR_FUNC(CPlayer::PlayerCreator)
 {
@@ -170,6 +171,34 @@ CPlayer::CPlayer(Vector3 Pos)
 
 void CPlayer::Update()
 {
+    if(!m_CheckedCheckpoint)
+    {
+        if(g_ConfigHandler.m_GameProgress.m_CheckPoint)
+        {
+            IEntity * pEntity = nullptr;
+            for(int i = 0; i < g_Game.NumEntities(); i++)
+            {
+                if((pEntity = g_Game.GetEntity(i)))
+                {
+                    if(pEntity->GetEntityID() == 9)
+                    {
+                        if(pEntity->m_Health <= 0)
+                            continue;
+
+                        if(((CCheckpoint *)pEntity)->m_CheckpointID != g_ConfigHandler.m_GameProgress.m_CheckPoint)
+                            continue;
+
+                        m_Pos = pEntity->m_Pos;
+                        SetSectorID(pEntity->GetSectorID());
+                        break;
+                    }
+                }
+            }
+        }
+
+        m_CheckedCheckpoint = true;
+    }
+
     if(m_Pos.y < g_Game.m_DeathLineY)
     {
         m_Health = 0;

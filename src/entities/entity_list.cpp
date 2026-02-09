@@ -13,6 +13,7 @@
 #include "victim.h"
 #include "saw.h"
 #include "stick.h"
+#include "checkpoint.h"
 
 std::unordered_map<unsigned int, ENTITY_CREATOR_FUNC((*))> g_EntityCreatorList;
 
@@ -27,4 +28,5 @@ void InitEntityCreatorList()
     g_EntityCreatorList.insert({CShootBot::SGetEntityID(), &CShootBot::ShootBotCreator});
     g_EntityCreatorList.insert({CSaw::SGetEntityID(), &CSaw::SawCreator});
     g_EntityCreatorList.insert({CStick::SGetEntityID(), &CStick::StickCreator});
+    g_EntityCreatorList.insert({CCheckpoint::SGetEntityID(), &CCheckpoint::CheckpointCreator});
 }

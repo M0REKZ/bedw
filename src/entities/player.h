@@ -35,6 +35,8 @@ class CPlayer : public IEntity
 
     Vector3 m_WantedVel = {0.f,0.f};
 
+    bool m_CheckedCheckpoint = false;
+
     enum PlayerWeapon
     {
         //negative weapons does have infinite ammo
