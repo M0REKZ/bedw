@@ -9,6 +9,7 @@
 #ifndef SAW_H
 #define SAW_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 class CSaw : public IEntity
@@ -16,7 +17,7 @@ class CSaw : public IEntity
 
     public:
 
-    static ENTITY_ID(7);
+    static ENTITY_ID(ENTITYID_SAW);
     static ENTITY_CREATOR_FUNC(SawCreator);
 
     CSector * m_pMySector = nullptr;

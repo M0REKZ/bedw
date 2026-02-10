@@ -9,6 +9,7 @@
 #ifndef CHECKPOINT_H
 #define CHECKPOINT_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 class CCheckpoint : public IEntity
@@ -16,7 +17,7 @@ class CCheckpoint : public IEntity
 
     public:
 
-    static ENTITY_ID(9);
+    static ENTITY_ID(ENTITYID_CHECKPOINT);
     static ENTITY_CREATOR_FUNC(CheckpointCreator);
 
     CSector * m_pMySector = nullptr;

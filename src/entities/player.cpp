@@ -180,7 +180,7 @@ void CPlayer::Update()
             {
                 if((pEntity = g_Game.GetEntity(i)))
                 {
-                    if(pEntity->GetEntityID() == 9)
+                    if(pEntity->GetEntityID() == ENTITYID_CHECKPOINT)
                     {
                         if(pEntity->m_Health <= 0)
                             continue;

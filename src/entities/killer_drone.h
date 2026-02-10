@@ -9,13 +9,14 @@
 #ifndef KILLERDRONE_H
 #define KILLERDRONE_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 class CKillerDrone : public IEntity
 {
     public:
 
-    static ENTITY_ID(3);
+    static ENTITY_ID(ENTITYID_KILLERDRONE);
     static ENTITY_CREATOR_FUNC(KillerDroneCreator);
 
     float m_Angle = 0.f;

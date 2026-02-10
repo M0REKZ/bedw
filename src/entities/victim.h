@@ -9,6 +9,7 @@
 #ifndef VICTIM_H
 #define VICTIM_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 class CVictim : public IEntity
@@ -16,7 +17,7 @@ class CVictim : public IEntity
 
     public:
 
-    static ENTITY_ID(4);
+    static ENTITY_ID(ENTITYID_VICTIM);
     static ENTITY_CREATOR_FUNC(VictimCreator);
 
     CSector * m_pMySector = nullptr;

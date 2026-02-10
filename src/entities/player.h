@@ -9,6 +9,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 class CPlayer : public IEntity
@@ -18,7 +19,7 @@ class CPlayer : public IEntity
 
     public:
 
-    static ENTITY_ID(0);
+    static ENTITY_ID(ENTITYID_PLAYER);
     static ENTITY_CREATOR_FUNC(PlayerCreator);
 
     float m_Angle = 0.f;

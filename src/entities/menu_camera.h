@@ -9,6 +9,7 @@
 #ifndef MENUCAMERA_H
 #define MENUCAMERA_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 class CMenuCamera : public IEntity
@@ -16,7 +17,7 @@ class CMenuCamera : public IEntity
 
     public:
 
-    static ENTITY_ID(2);
+    static ENTITY_ID(ENTITYID_MENU_CAMERA);
     static ENTITY_CREATOR_FUNC(MenuCameraCreator);
 
     float m_Angle = 0.f;

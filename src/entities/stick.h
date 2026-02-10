@@ -9,6 +9,7 @@
 #ifndef STICK_H
 #define STICK_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 class CStick : public IEntity
@@ -16,7 +17,7 @@ class CStick : public IEntity
 
     public:
 
-    static ENTITY_ID(8);
+    static ENTITY_ID(ENTITYID_STICK);
     static ENTITY_CREATOR_FUNC(StickCreator);
 
     CSector * m_pMySector = nullptr;

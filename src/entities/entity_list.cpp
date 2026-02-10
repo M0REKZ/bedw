@@ -6,6 +6,8 @@
     a copy of the license along with the program.
 */
 
+#include "entity_list.h"
+
 #include "player.h"
 #include "killer_bot.h"
 #include "menu_camera.h"

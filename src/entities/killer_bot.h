@@ -9,6 +9,7 @@
 #ifndef KILLERBOT_H
 #define KILLERBOT_H
 
+#include "entity_list.h"
 #include "entity_base.h"
 
 enum KillerBotType
@@ -21,14 +22,14 @@ enum KillerBotType
 class CSawBot
 {
     public:
-    static ENTITY_ID(5);
+    static ENTITY_ID(ENTITYID_SAWBOT);
     static ENTITY_CREATOR_FUNC(SawBotCreator);
 };
 
 class CShootBot
 {
     public:
-    static ENTITY_ID(6);
+    static ENTITY_ID(ENTITYID_SHOOTBOT);
     static ENTITY_CREATOR_FUNC(ShootBotCreator);
 };
 
@@ -37,7 +38,7 @@ class CKillerBot : public IEntity
 {
     public:
 
-    static ENTITY_ID(1);
+    static ENTITY_ID(ENTITYID_KILLERBOT);
     static ENTITY_CREATOR_FUNC(KillerBotCreator);
 
     float m_Angle = 0.f;
